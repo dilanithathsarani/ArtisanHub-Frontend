@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
-import artisanImage from "../assets/login.jpg";
+import artisanImage from "../assets/forgotpw.jpg";
 
 export default function ForgotPasswordPage() {
     const [email, setEmail] = useState("");
