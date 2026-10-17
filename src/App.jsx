@@ -4,6 +4,7 @@ import HomePage from './pages/homePage';
 import LoginPage from './pages/loginPage';
 import SignupPage from './pages/signupPage';
 import ForgotPasswordPage from './pages/forgotPasswordPage';
+import ResetPasswordPage from './pages/resetPasswordPage';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
       <Route path='/login' element={<LoginPage/>}/>
       <Route path="/signup" element={<SignupPage />} />
       <Route path='/forgotPassword' element={<ForgotPasswordPage/>}/>
+      <Route path='/reset-password/:token' element={<ResetPasswordPage/>}/>
       
     </Routes>
 
