@@ -171,12 +171,12 @@ export default function LoginPage() {
       </section>
 
       {/* Right side */}
-      <section className="relative flex h-dvh items-center justify-center overflow-hidden px-6 py-5 sm:px-10 xl:px-16">
+      <section className="relative flex h-dvh items-center justify-center overflow-hidden px-5 py-4 sm:px-10 lg:px-12 xl:px-16">
         <Link
           to="/"
-          className="absolute right-6 top-6 flex items-center gap-2 text-sm text-[#994b1c] hover:text-[#663014] sm:right-10 sm:top-8"
+          className="absolute right-5 top-5 flex items-center gap-2 text-xs text-[#994b1c] hover:text-[#663014] sm:right-8 sm:top-7"
         >
-          <span className="text-xl">←</span>
+          <span className="text-lg">←</span>
           Back to Home
         </Link>
 
@@ -184,10 +184,10 @@ export default function LoginPage() {
           {/* Mobile logo */}
           <Link
             to="/"
-            className="mb-5 flex items-center justify-center gap-2 text-[#75401f] lg:hidden"
+            className="mb-4 flex items-center justify-center gap-2 text-[#75401f] lg:hidden"
           >
-            <span className="text-3xl">❋</span>
-            <span className="font-serif text-3xl font-semibold">
+            <span className="text-2xl">❋</span>
+            <span className="font-serif text-2xl font-semibold">
               ArtisanHub
             </span>
           </Link>
@@ -196,22 +196,22 @@ export default function LoginPage() {
             Welcome Back
           </h2>
 
-          <p className="mt-3 max-w-md text-sm leading-6 text-gray-600 sm:text-base">
+          <p className="mt-2 text-sm leading-6 text-gray-600">
             Sign in to your ArtisanHub account to continue exploring
             unique handmade crafts.
           </p>
 
-          <form onSubmit={handleLogin} className="mt-7 space-y-5">
+          <form onSubmit={handleLogin} className="mt-5 space-y-3">
             {/* Email */}
             <div>
               <label
                 htmlFor="email"
-                className="mb-2 block text-sm font-semibold text-gray-700"
+                className="mb-1.5 block text-sm font-semibold text-gray-700"
               >
                 Email Address
               </label>
 
-              <div className="flex h-[48px] items-center gap-3 rounded-lg border border-gray-300 px-3.5 focus-within:border-[#99501f] focus-within:ring-2 focus-within:ring-[#99501f]/10">
+              <div className="flex h-10 items-center gap-3 rounded-lg border border-gray-300 px-3.5 focus-within:border-[#99501f] focus-within:ring-2 focus-within:ring-[#99501f]/10">
                 <svg
                   className="h-5 w-5 shrink-0 text-gray-600"
                   viewBox="0 0 24 24"
@@ -240,12 +240,12 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="password"
-                className="mb-2 block text-sm font-semibold text-gray-700"
+                className="mb-1.5 block text-sm font-semibold text-gray-700"
               >
                 Password
               </label>
 
-              <div className="flex h-[48px] items-center gap-3 rounded-lg border border-gray-300 px-3.5 focus-within:border-[#99501f] focus-within:ring-2 focus-within:ring-[#99501f]/10">
+              <div className="flex h-10 items-center gap-3 rounded-lg border border-gray-300 px-3.5 focus-within:border-[#99501f] focus-within:ring-2 focus-within:ring-[#99501f]/10">
                 <svg
                   className="h-5 w-5 shrink-0 text-gray-600"
                   viewBox="0 0 24 24"
@@ -328,17 +328,17 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="flex h-12 w-full items-center justify-center gap-4 rounded-lg bg-[#965022] text-base font-semibold text-white transition hover:bg-[#7c3e17] disabled:opacity-60"
+              className="flex h-11 w-full items-center justify-center gap-3 rounded-lg bg-[#965022] text-sm font-semibold text-white transition hover:bg-[#7c3e17] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? "Signing In..." : "Sign In"}
-              {!loading && <span className="text-xl">→</span>}
+              {!loading && <span className="text-lg">→</span>}
             </button>
           </form>
 
           {/* Registration separator */}
-          <div className="my-6 flex items-center gap-4">
+          <div className="my-4 flex items-center gap-3">
             <div className="h-px flex-1 bg-gray-300" />
-            <span className="whitespace-nowrap text-xs text-gray-400 sm:text-sm">
+            <span className="whitespace-nowrap text-xs text-gray-400">
               New to ArtisanHub?
             </span>
             <div className="h-px flex-1 bg-gray-300" />
@@ -347,9 +347,9 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={() =>
-              toast("Registration is coming soon. Stay tuned!")
+              navigate("/signup")
             }
-            className="flex h-[46px] w-full items-center justify-center gap-3 rounded-lg border border-[#994b1c] text-sm text-[#994b1c] transition hover:bg-[#fbf3ed]"
+            className="flex h-10 w-full items-center justify-center gap-3 rounded-lg border border-[#994b1c] text-sm font-medium text-[#994b1c] transition hover:bg-[#fbf3ed]"
           >
             <svg
               className="h-5 w-5"
