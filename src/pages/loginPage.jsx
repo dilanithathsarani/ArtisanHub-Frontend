@@ -316,7 +316,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() =>
-                  toast("Password recovery will be available soon.")
+                  navigate("/forgotPassword")
                 }
                 className="shrink-0 text-[#994b1c] hover:text-[#663014]"
               >
