@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import Navbar from "../components/navBar";
+import Footer from "../components/footer";
 
 function HomePage() {
   const [products, setProducts] = useState([]);
@@ -141,6 +142,7 @@ function HomePage() {
           </div>
         )}
       </section>
+      <Footer/>
     </main>
   );
 }
