@@ -1,5 +1,7 @@
 
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import toast from "react-hot-toast";
 import {
   ArrowRight,
   Heart,
@@ -8,6 +10,14 @@ import {
 } from "lucide-react";
 
 function Footer() {
+  const [email, setEmail] = useState("");
+
+  const handleSubscribe = (e) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+    toast.success("Thank you for subscribing to ArtisanHub!");
+    setEmail("");
+  };
   return (
     <footer className="bg-[#f4eadb] text-[#493324]">
       {/* Newsletter Section */}
@@ -129,26 +139,55 @@ function Footer() {
               </Link>
             </li>
             <li>
-              <a href="mailto:support@artisanhub.com" className="transition hover:text-[#8b5e3c]">
+              <Link to="/contact" className="transition hover:text-[#8b5e3c]">
                 Contact us
-              </a>
+              </Link>
             </li>
           </ul>
         </div>
 
         {/* Contact & Social */}
         <div>
-          <h3 className="mb-5 text-sm font-bold uppercase tracking-widest">
+          <h3 className="mb-4 text-sm font-bold uppercase tracking-widest">
             Stay Connected
           </h3>
 
-          <p className="flex items-start gap-3 text-sm leading-6 text-[#795f4d]">
-            <Mail size={18} className="mt-1 shrink-0 text-[#8b5e3c]" />
-            support@artisanhub.com
+          <p className="text-xs leading-relaxed text-[#795f4d]">
+            Join our mailing list for handcrafted stories, new arrivals, and artisan events.
           </p>
 
-          <p className="mt-3 flex items-start gap-3 text-sm leading-6 text-[#795f4d]">
-            <MapPin size={18} className="mt-1 shrink-0 text-[#8b5e3c]" />
+          <form
+            onSubmit={handleSubscribe}
+            className="mt-3.5 flex items-center rounded-full border border-[#8b5e3c]/30 bg-[#fffdf9] p-1 shadow-2xs transition focus-within:border-[#8b5e3c]"
+          >
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              required
+              aria-label="Email address for stay connected"
+              className="w-full bg-transparent px-3 py-1.5 text-xs text-[#493324] placeholder-stone-400 focus:outline-hidden"
+            />
+            <button
+              type="submit"
+              aria-label="Subscribe"
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#8b5e3c] text-white transition hover:bg-[#70472c]"
+            >
+              <ArrowRight size={13} />
+            </button>
+          </form>
+
+          <a
+            href="mailto:support@artisanhub.com"
+            className="mt-4 flex items-center gap-2.5 text-sm leading-6 text-[#795f4d] transition hover:text-[#8b5e3c]"
+          >
+            <Mail size={16} className="shrink-0 text-[#8b5e3c]" />
+            support@artisanhub.com
+          </a>
+
+          <p className="mt-2.5 flex items-start gap-2.5 text-sm leading-6 text-[#795f4d]">
+            <MapPin size={16} className="mt-1 shrink-0 text-[#8b5e3c]" />
             Supporting local artisans and handmade crafts.
           </p>
 

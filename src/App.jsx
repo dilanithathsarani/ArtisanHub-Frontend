@@ -6,6 +6,7 @@ import SignupPage from './pages/signupPage';
 import ForgotPasswordPage from './pages/forgotPasswordPage';
 import ResetPasswordPage from './pages/resetPasswordPage';
 import AboutPage from './pages/aboutPage';
+import ContactPage from './pages/contactPage';
 
 function App() {
   return (
@@ -20,7 +21,7 @@ function App() {
       <Route path='/forgotPassword' element={<ForgotPasswordPage/>}/>
       <Route path='/reset-password/:token' element={<ResetPasswordPage/>}/>
       <Route path='/about' element={<AboutPage/>}/>
-      
+      <Route path='/contact' element={<ContactPage/>}/>
       
     </Routes>
 
