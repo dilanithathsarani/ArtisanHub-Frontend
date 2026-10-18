@@ -1,7 +1,7 @@
-
 import { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import Navbar from "../components/navBar";
 
 function HomePage() {
   const [products, setProducts] = useState([]);
@@ -36,6 +36,7 @@ function HomePage() {
 
   return (
     <main className="min-h-screen bg-[#fffdf9] text-stone-800">
+      <Navbar/>
       {/* Hero Section */}
       <section className="flex min-h-[460px] items-center bg-[#f4eadb] px-6 py-16 sm:px-10 lg:px-[8%]">
         <div className="max-w-2xl">
