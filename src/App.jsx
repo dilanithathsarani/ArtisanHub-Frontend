@@ -7,6 +7,7 @@ import ForgotPasswordPage from './pages/forgotPasswordPage';
 import ResetPasswordPage from './pages/resetPasswordPage';
 import AboutPage from './pages/aboutPage';
 import ContactPage from './pages/contactPage';
+import ProductDetailsPage from './pages/productDetailsPage';
 
 function App() {
   return (
@@ -22,7 +23,8 @@ function App() {
       <Route path='/reset-password/:token' element={<ResetPasswordPage/>}/>
       <Route path='/about' element={<AboutPage/>}/>
       <Route path='/contact' element={<ContactPage/>}/>
-      
+      <Route path="/products/:id" element={<ProductDetailsPage />} />
+
     </Routes>
 
     </BrowserRouter>
