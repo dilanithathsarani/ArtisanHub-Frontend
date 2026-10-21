@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 import toast from "react-hot-toast";
 import {
   Mail,
@@ -16,42 +17,53 @@ import Navbar from "../components/navBar";
 import Footer from "../components/footer";
 import contactHeroImage from "../assets/contact.jpg";
 
+const initialFormData = {
+  name: "",
+  email: "",
+  inquiryType: "General Inquiry",
+  subject: "",
+  message: "",
+};
+
 function ContactPage() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    inquiryType: "General Inquiry",
-    subject: "",
-    message: "",
-  });
+  const [formData, setFormData] = useState(initialFormData);
   const [submitting, setSubmitting] = useState(false);
+  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
       toast.error("Please fill in all required fields.");
       return;
     }
 
-    setSubmitting(true);
+    try {
+      setSubmitting(true);
 
-    // Simulate sending message
-    setTimeout(() => {
-      setSubmitting(false);
-      toast.success("Thank you! Your message has been received. We'll be in touch soon.");
-      setFormData({
-        name: "",
-        email: "",
-        inquiryType: "General Inquiry",
-        subject: "",
-        message: "",
+      const response = await axios.post(`${apiUrl}/contact`, {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        inquiryType: formData.inquiryType,
+        subject: formData.subject.trim(),
+        message: formData.message.trim(),
       });
-    }, 800);
+
+      toast.success(response.data?.message || "Thank you! Your message has been received. We'll be in touch soon.");
+      setFormData(initialFormData);
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Unable to send your message. Please try again."
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const contactCards = [
