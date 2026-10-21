@@ -1,5 +1,6 @@
 
 import { formatCurrency } from "../utils/formatCurrency";
+import { Link } from "react-router-dom";
 
 function ProductCard({ product, onAddToCart }) {
   const image =
@@ -13,6 +14,7 @@ function ProductCard({ product, onAddToCart }) {
   return (
     <article className="group overflow-hidden rounded-2xl border border-stone-200 bg-white transition duration-300 hover:-translate-y-1 hover:shadow-xl">
       <div className="relative overflow-hidden bg-[#f4eadb]">
+        <Link to={`/products/${product._id}`}>
         {image ? (
           <img
             src={image}
@@ -25,11 +27,17 @@ function ProductCard({ product, onAddToCart }) {
             Image unavailable
           </div>
         )}
+        </Link>
       </div>
 
       <div className="p-5">
         <h3 className="truncate text-lg font-semibold text-stone-800">
+          <Link
+    to={`/products/${product._id}`}
+    className="transition hover:text-[#8b5e3c]"
+  >
           {name}
+          </Link>
         </h3>
 
         <p className="mt-2 min-h-10 line-clamp-2 text-sm leading-5 text-stone-500">

@@ -12,23 +12,23 @@ import ProductDetailsPage from './pages/productDetailsPage';
 function App() {
   return (
     <>
-    <BrowserRouter>
-    
-    <Routes>
+      <BrowserRouter>
 
-      <Route path='/' element={<HomePage/>}/>
-      <Route path='/login' element={<LoginPage/>}/>
-      <Route path="/signup" element={<SignupPage />} />
-      <Route path='/forgotPassword' element={<ForgotPasswordPage/>}/>
-      <Route path='/reset-password/:token' element={<ResetPasswordPage/>}/>
-      <Route path='/about' element={<AboutPage/>}/>
-      <Route path='/contact' element={<ContactPage/>}/>
-      <Route path="/products/:id" element={<ProductDetailsPage />} />
+        <Routes>
 
-    </Routes>
+          <Route path='/' element={<HomePage />} />
+          <Route path='/login' element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path='/forgotPassword' element={<ForgotPasswordPage />} />
+          <Route path='/reset-password/:token' element={<ResetPasswordPage />} />
+          <Route path='/about' element={<AboutPage />} />
+          <Route path='/contact' element={<ContactPage />} />
+          <Route path="/products/:id" element={<ProductDetailsPage />} />
 
-    </BrowserRouter>
-      
+        </Routes>
+
+      </BrowserRouter>
+
     </>
   )
 }

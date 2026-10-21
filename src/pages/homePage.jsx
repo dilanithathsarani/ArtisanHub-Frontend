@@ -3,6 +3,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import Navbar from "../components/navBar";
 import Footer from "../components/footer";
+import ProductCard from "../components/ProductCard";
 
 function HomePage() {
   const [products, setProducts] = useState([]);
@@ -37,7 +38,7 @@ function HomePage() {
 
   return (
     <main className="min-h-screen bg-[#fffdf9] text-stone-800">
-      <Navbar/>
+      <Navbar />
       {/* Hero Section */}
       <section className="flex min-h-[460px] items-center bg-[#f4eadb] px-6 py-16 sm:px-10 lg:px-[8%]">
         <div className="max-w-2xl">
@@ -99,50 +100,16 @@ function HomePage() {
 
         {!loading && products.length > 0 && (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {products.map((product, index) => {
-              const image =
-                product.images?.[0]?.url ||
-                product.image?.url ||
-                product.image;
-
-              return (
-                <article
-                  key={product._id || product.id || product.sku || index}
-                  className="overflow-hidden rounded-xl border border-stone-200 bg-white transition hover:-translate-y-1 hover:shadow-lg"
-                >
-                  {image ? (
-                    <img
-                      src={image}
-                      alt={product.name || product.title || "Handmade craft"}
-                      className="h-56 w-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-56 items-center justify-center bg-[#f1e8dc] text-stone-500">
-                      Handmade Craft
-                    </div>
-                  )}
-
-                  <div className="p-5">
-                    <h3 className="text-lg font-semibold">
-                      {product.name || product.title || "Untitled Product"}
-                    </h3>
-
-                    <p className="mt-2 line-clamp-2 text-sm leading-6 text-stone-500">
-                      {product.description || "A unique handmade creation."}
-                    </p>
-
-                    <p className="mt-4 text-lg font-bold text-[#8b5e3c]">
-                      LKR{" "}
-                      {Number(product.price || 0).toLocaleString("en-LK")}
-                    </p>
-                  </div>
-                </article>
-              );
-            })}
+            {products.map((product, index) => (
+              <ProductCard
+                key={product._id || product.id || product.sku || index}
+                product={product}
+              />
+            ))}
           </div>
         )}
       </section>
-      <Footer/>
+      <Footer />
     </main>
   );
 }
