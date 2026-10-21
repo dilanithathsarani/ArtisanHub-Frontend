@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect} from "react";
 import { Link, NavLink } from "react-router-dom";
 import {
   Search,
@@ -13,6 +12,35 @@ import {
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    const updateCartCount = () => {
+      try {
+        const cart = JSON.parse(
+          localStorage.getItem("artisanhub-cart") || "[]"
+        );
+
+        setCartCount(
+          cart.reduce(
+            (total, item) => total + (Number(item.quantity) || 0),
+            0
+          )
+        );
+      } catch {
+        setCartCount(0);
+      }
+    };
+
+    updateCartCount();
+    window.addEventListener("storage", updateCartCount);
+    window.addEventListener("cartUpdated", updateCartCount);
+
+    return () => {
+      window.removeEventListener("storage", updateCartCount);
+      window.removeEventListener("cartUpdated", updateCartCount);
+    };
+  }, []);
 
   const navLinks = [
     { name: "Home", path: "/" },
@@ -23,10 +51,9 @@ const Navbar = () => {
   ];
 
   const navClass = ({ isActive }) =>
-    `relative py-2 text-sm font-medium transition-colors duration-200 ${
-      isActive
-        ? "text-[#8b5e3c] after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-[#a56d42]"
-        : "text-stone-600 hover:text-[#8b5e3c]"
+    `relative py-2 text-sm font-medium transition-colors duration-200 ${isActive
+      ? "text-[#8b5e3c] after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-[#a56d42]"
+      : "text-stone-600 hover:text-[#8b5e3c]"
     }`;
 
   const closeMenu = () => setMenuOpen(false);
@@ -105,9 +132,15 @@ const Navbar = () => {
           <Link
             to="/cart"
             aria-label="Shopping bag"
-            className="flex h-10 w-10 items-center justify-center rounded-full text-stone-600 transition hover:bg-[#f4eadb] hover:text-[#8b5e3c]"
+            className="relative flex h-10 w-10 items-center justify-center rounded-full text-stone-600 transition hover:bg-[#f4eadb] hover:text-[#8b5e3c]"
           >
             <ShoppingBag size={20} strokeWidth={1.7} />
+
+            {cartCount > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#8b5e3c] px-1 text-[10px] font-bold text-white ring-2 ring-[#fffdf9]">
+                {cartCount > 99 ? "99+" : cartCount}
+              </span>
+            )}
           </Link>
 
           <Link
@@ -149,10 +182,9 @@ const Navbar = () => {
                 end={link.path === "/"}
                 onClick={closeMenu}
                 className={({ isActive }) =>
-                  `rounded-xl px-4 py-3 text-sm font-medium transition ${
-                    isActive
-                      ? "bg-[#f4eadb] text-[#8b5e3c]"
-                      : "text-stone-700 hover:bg-[#faf3e9] hover:text-[#8b5e3c]"
+                  `rounded-xl px-4 py-3 text-sm font-medium transition ${isActive
+                    ? "bg-[#f4eadb] text-[#8b5e3c]"
+                    : "text-stone-700 hover:bg-[#faf3e9] hover:text-[#8b5e3c]"
                   }`
                 }
               >
