@@ -4,13 +4,17 @@ import { Search, SlidersHorizontal, X } from "lucide-react";
 import Navbar from "../components/navBar";
 import Footer from "../components/footer";
 import ProductCard from "../components/ProductCard";
+import { useSearchParams } from "react-router-dom";
 
 const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 const ShopPage = () => {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [searchParams] = useSearchParams();
+  const [selectedCategory, setSelectedCategory] = useState(
+    () => searchParams.get("category") || "All",
+  );
   const [sortBy, setSortBy] = useState("newest");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -36,7 +40,7 @@ const ShopPage = () => {
       } catch (err) {
         setError(
           err.response?.data?.message ||
-            "Unable to load products. Please try again."
+            "Unable to load products. Please try again.",
         );
       } finally {
         setLoading(false);
@@ -80,12 +84,19 @@ const ShopPage = () => {
 
       const categoryId =
         typeof product.category === "object"
-          ? product.category?._id
+          ? product.category?._id || product.category?.id
+          : product.category;
+
+      const categoryName =
+        typeof product.category === "object"
+          ? product.category?.name || product.category?.categoryName
           : product.category;
 
       const matchesCategory =
         selectedCategory === "all" ||
-        categoryId === selectedCategory;
+        String(categoryId) === String(selectedCategory) ||
+        String(categoryName).toLowerCase() ===
+          String(selectedCategory).toLowerCase();
 
       const isAvailable =
         product.isActive !== false &&
@@ -136,8 +147,8 @@ const ShopPage = () => {
             </h1>
 
             <p className="mt-5 max-w-xl text-base leading-7 text-stone-600 sm:text-lg">
-              Explore unique handmade creations from talented local
-              artisans. Find something meaningful, made with care.
+              Explore unique handmade creations from talented local artisans.
+              Find something meaningful, made with care.
             </p>
 
             <div className="mt-8 flex items-center gap-3 text-sm text-[#70472c]">
@@ -302,8 +313,8 @@ const ShopPage = () => {
               </h3>
 
               <p className="mt-2 text-sm text-stone-500">
-                Try another search or clear your filters to explore
-                all available products.
+                Try another search or clear your filters to explore all
+                available products.
               </p>
 
               <button
