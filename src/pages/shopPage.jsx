@@ -14,11 +14,15 @@ const ShopPage = () => {
   const [searchParams] = useSearchParams();
   const selectedArtisan = searchParams.get("artisan") || "all";
   const [selectedCategory, setSelectedCategory] = useState(
-    () => searchParams.get("category") || "All",
+    () => searchParams.get("category") || "all",
   );
   const [sortBy, setSortBy] = useState("newest");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    setSelectedCategory(searchParams.get("category") || "all");
+  }, [searchParams]);
 
   useEffect(() => {
     const fetchProducts = async () => {
