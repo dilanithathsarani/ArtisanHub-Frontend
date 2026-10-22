@@ -3,41 +3,36 @@ import { Link } from "react-router-dom";
 import { ArrowRight, MapPin, Users } from "lucide-react";
 
 const ArtisanCard = ({ artisan }) => {
-  const id = artisan._id || artisan.id;
+ const profile = artisan.sellerProfile || {};
 
-  const name =
-    artisan.name ||
-    artisan.fullName ||
-    artisan.user?.name ||
-    "Local Artisan";
+const id = artisan._id || artisan.id;
+const name = artisan.name || "Local Artisan";
+const shopName = profile.shopName || "";
 
-  const shopName = artisan.shopName || artisan.businessName || "";
+const bio =
+  profile.bio ||
+  "Creating unique handmade pieces with care and creativity.";
 
-  const bio =
-    artisan.bio ||
-    artisan.description ||
-    "Creating unique handmade pieces with care and creativity.";
+const location = [
+  profile.city,
+  profile.district,
+  profile.country,
+]
+  .filter(Boolean)
+  .join(", ");
 
-  const location =
-    typeof artisan.location === "object"
-      ? artisan.location?.city || artisan.location?.name || ""
-      : artisan.location || artisan.address || "";
+const specialty =
+  profile.craftCategories
+    ?.map((category) => category.name)
+    .filter(Boolean)
+    .join(", ") || "Handmade Crafts";
 
-  const specialty =
-    artisan.category?.name ||
-    artisan.specialty ||
-    artisan.craftType ||
-    "Handmade Crafts";
-
-  const image =
-    artisan.profileImage?.url ||
-    artisan.profileImage ||
-    artisan.image?.url ||
-    artisan.image ||
-    artisan.user?.profileImage?.url ||
-    artisan.user?.profileImage ||
-    "";
-
+const image =
+  profile.logo ||
+  artisan.avatar ||
+  profile.bannerImage ||
+  "";
+  
   return (
     <article className="group overflow-hidden rounded-2xl border border-[#eadfd3] bg-white transition duration-300 hover:-translate-y-1 hover:shadow-xl">
       <div className="relative h-64 overflow-hidden bg-[#eee2d1]">
