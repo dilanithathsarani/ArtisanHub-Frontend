@@ -1,0 +1,98 @@
+
+import { Link } from "react-router-dom";
+import { ArrowRight, MapPin, Users } from "lucide-react";
+
+const ArtisanCard = ({ artisan }) => {
+  const id = artisan._id || artisan.id;
+
+  const name =
+    artisan.name ||
+    artisan.fullName ||
+    artisan.user?.name ||
+    "Local Artisan";
+
+  const shopName = artisan.shopName || artisan.businessName || "";
+
+  const bio =
+    artisan.bio ||
+    artisan.description ||
+    "Creating unique handmade pieces with care and creativity.";
+
+  const location =
+    typeof artisan.location === "object"
+      ? artisan.location?.city || artisan.location?.name || ""
+      : artisan.location || artisan.address || "";
+
+  const specialty =
+    artisan.category?.name ||
+    artisan.specialty ||
+    artisan.craftType ||
+    "Handmade Crafts";
+
+  const image =
+    artisan.profileImage?.url ||
+    artisan.profileImage ||
+    artisan.image?.url ||
+    artisan.image ||
+    artisan.user?.profileImage?.url ||
+    artisan.user?.profileImage ||
+    "";
+
+  return (
+    <article className="group overflow-hidden rounded-2xl border border-[#eadfd3] bg-white transition duration-300 hover:-translate-y-1 hover:shadow-xl">
+      <div className="relative h-64 overflow-hidden bg-[#eee2d1]">
+        {image ? (
+          <img
+            src={image}
+            alt={name}
+            loading="lazy"
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#eee2d1] to-[#c6a486]">
+            <Users
+              size={64}
+              strokeWidth={1}
+              className="text-white/80"
+            />
+          </div>
+        )}
+
+        <span className="absolute bottom-4 left-4 rounded-full bg-white/95 px-4 py-2 text-xs font-semibold text-[#8b5e3c]">
+          {specialty}
+        </span>
+      </div>
+
+      <div className="p-6">
+        <h3 className="text-xl font-bold text-[#493324]">
+          {shopName || name}
+        </h3>
+
+        {shopName && (
+          <p className="mt-1 text-sm text-stone-500">{name}</p>
+        )}
+
+        {location && (
+          <p className="mt-3 flex items-center gap-2 text-sm text-stone-500">
+            <MapPin size={16} className="shrink-0 text-[#a56d42]" />
+            {location}
+          </p>
+        )}
+
+        <p className="mt-4 line-clamp-3 text-sm leading-6 text-stone-600">
+          {bio}
+        </p>
+
+        <Link
+          to={`/shop?artisan=${encodeURIComponent(id || "")}`}
+          className="mt-6 inline-flex items-center gap-2 font-semibold text-[#8b5e3c] transition hover:gap-3"
+        >
+          Explore creations
+          <ArrowRight size={17} />
+        </Link>
+      </div>
+    </article>
+  );
+};
+
+export default ArtisanCard;
