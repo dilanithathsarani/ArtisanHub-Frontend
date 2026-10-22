@@ -12,6 +12,7 @@ const ShopPage = () => {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
   const [searchParams] = useSearchParams();
+  const selectedArtisan = searchParams.get("artisan") || "all";
   const [selectedCategory, setSelectedCategory] = useState(
     () => searchParams.get("category") || "All",
   );
@@ -76,6 +77,14 @@ const ShopPage = () => {
     const searchTerm = search.trim().toLowerCase();
 
     const result = products.filter((product) => {
+      const productSellerId =
+        typeof product.seller === "object"
+          ? product.seller?._id || product.seller?.id
+          : product.seller;
+
+      const matchesArtisan =
+        selectedArtisan === "all" ||
+        String(productSellerId) === String(selectedArtisan);
       const matchesSearch =
         !searchTerm ||
         [product.name, product.description, product.productId]
@@ -102,7 +111,7 @@ const ShopPage = () => {
         product.isActive !== false &&
         (!product.status || product.status === "approved");
 
-      return matchesSearch && matchesCategory && isAvailable;
+      return matchesSearch && matchesCategory && matchesArtisan && isAvailable;
     });
 
     return result.sort((a, b) => {
@@ -123,7 +132,7 @@ const ShopPage = () => {
         new Date(a.createdAt || 0).getTime()
       );
     });
-  }, [products, search, selectedCategory, sortBy]);
+  }, [products, search, selectedCategory, selectedArtisan ,sortBy]);
 
   const clearFilters = () => {
     setSearch("");

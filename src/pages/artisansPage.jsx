@@ -20,9 +20,34 @@ const ArtisansPage = () => {
         setLoading(true);
         setError("");
 
-        const response = await axios.get(`${apiUrl}/artisans`);
-        const data = response.data;
+        let response;
+        try {
+          response = await axios.get(`${apiUrl}/artisans`);
+        } catch (err) {
+          // Some API deployments do not expose a dedicated artisans route.
+          // In that case, build the community list from product seller data.
+          if (err.response?.status !== 404) throw err;
 
+          const productsResponse = await axios.get(`${apiUrl}/products`);
+          const productsData = productsResponse.data;
+          const products = Array.isArray(productsData)
+            ? productsData
+            : productsData.products || productsData.data?.products || productsData.data || [];
+          const artisanMap = new Map();
+
+          for (const product of Array.isArray(products) ? products : []) {
+            const seller = product.artisan || product.seller || product.user;
+            if (!seller || typeof seller !== "object") continue;
+
+            const id = seller._id || seller.id;
+            if (!id || artisanMap.has(String(id))) continue;
+            artisanMap.set(String(id), seller);
+          }
+
+          response = { data: [...artisanMap.values()] };
+        }
+
+        const data = response.data;
         const artisanList = Array.isArray(data)
           ? data
           : Array.isArray(data.artisans)
