@@ -122,7 +122,7 @@ const CategoriesPage = () => {
                         className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
                       />
                     ) : (
-                      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#e8d8c5] via-[#d8bda1] to-[#b98d6b]">
+                      <div className="absolute inset-0 flex items-center justify-center bg-linear-to-br from-[#e8d8c5] via-[#d8bda1] to-[#b98d6b]">
                         <Shapes
                           size={70}
                           strokeWidth={1}
@@ -131,7 +131,7 @@ const CategoriesPage = () => {
                       </div>
                     )}
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/75 via-black/15 to-transparent" />
 
                     <div className="relative mt-auto flex w-full items-end justify-between gap-4 p-6">
                       <div>
