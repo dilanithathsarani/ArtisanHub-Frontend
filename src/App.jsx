@@ -13,6 +13,9 @@ import ShopPage from './pages/shopPage';
 import CategoriesPage from './pages/categoriesPage';
 import ArtisansPage from './pages/artisansPage';
 import ArtisanDetailsPage from './pages/artisanDetailsPage';
+import CheckoutPage from './pages/checkoutPage';
+import OrderSuccessPage from './pages/orderSuccessPage';
+import MyOrdersPage from './pages/myOrdersPage';
 
 function App() {
   return (
@@ -30,6 +33,9 @@ function App() {
           <Route path='/contact' element={<ContactPage />} />
           <Route path="/products/:id" element={<ProductDetailsPage />} />
           <Route path='/cart' element={<CartPage />} />
+          <Route path='/checkout' element={<CheckoutPage />} />
+          <Route path='/order-success' element={<OrderSuccessPage />} />
+          <Route path='/orders' element={<MyOrdersPage />} />
           <Route path='/shop' element={<ShopPage />} />
           <Route path='/categories' element={<CategoriesPage />} />
           <Route path='/artisans' element={<ArtisansPage />} />

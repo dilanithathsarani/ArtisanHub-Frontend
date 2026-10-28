@@ -7,12 +7,27 @@ import {
   X,
   Heart,
   ArrowRight,
-  UserRound
+  UserRound,
+  Package
 } from "lucide-react";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("user") || "null");
+    } catch {
+      return null;
+    }
+  });
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setCurrentUser(null);
+    window.location.href = "/";
+  };
 
   useEffect(() => {
     const updateCartCount = () => {
@@ -143,20 +158,41 @@ const Navbar = () => {
             )}
           </Link>
 
-          <Link
-            to="/login"
-            className="hidden items-center gap-2 rounded-full border border-[#d9c7b4] px-4 py-2.5 text-sm font-semibold text-[#70472c] transition hover:border-[#8b5e3c] hover:bg-[#f4eadb] md:flex"
-          >
-            <UserRound size={16} />
-            Login
-          </Link>
+          {currentUser ? (
+            <div className="hidden items-center gap-2 md:flex">
+              <Link
+                to="/orders"
+                className="flex items-center gap-1.5 rounded-full border border-[#d9c7b4] px-4 py-2 text-xs font-semibold text-[#70472c] transition hover:border-[#8b5e3c] hover:bg-[#f4eadb]"
+              >
+                <Package size={15} />
+                My Orders
+              </Link>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="rounded-full bg-stone-100 px-3.5 py-2 text-xs font-semibold text-stone-600 transition hover:bg-stone-200"
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="hidden items-center gap-2 rounded-full border border-[#d9c7b4] px-4 py-2.5 text-sm font-semibold text-[#70472c] transition hover:border-[#8b5e3c] hover:bg-[#f4eadb] md:flex"
+              >
+                <UserRound size={16} />
+                Login
+              </Link>
 
-          <Link
-            to="/signup"
-            className="hidden rounded-full bg-[#8b5e3c] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#70472c] md:inline-flex"
-          >
-            Join Us
-          </Link>
+              <Link
+                to="/signup"
+                className="hidden rounded-full bg-[#8b5e3c] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#70472c] md:inline-flex"
+              >
+                Join Us
+              </Link>
+            </>
+          )}
 
           {/* Mobile menu toggle */}
           <button
@@ -193,21 +229,46 @@ const Navbar = () => {
             ))}
 
             <div className="mt-3 grid grid-cols-2 gap-3 border-t border-[#eadfd3] pt-4">
-              <Link
-                to="/login"
-                onClick={closeMenu}
-                className="rounded-full border border-[#d9c7b4] px-4 py-3 text-center text-sm font-semibold text-[#70472c] transition hover:bg-[#f4eadb]"
-              >
-                Login
-              </Link>
+              {currentUser ? (
+                <>
+                  <Link
+                    to="/orders"
+                    onClick={closeMenu}
+                    className="rounded-full border border-[#d9c7b4] px-4 py-3 text-center text-sm font-semibold text-[#70472c] transition hover:bg-[#f4eadb]"
+                  >
+                    My Orders
+                  </Link>
 
-              <Link
-                to="/signup"
-                onClick={closeMenu}
-                className="rounded-full bg-[#8b5e3c] px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#70472c]"
-              >
-                Join Us
-              </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      closeMenu();
+                      handleLogout();
+                    }}
+                    className="rounded-full bg-stone-100 px-4 py-3 text-center text-sm font-semibold text-stone-600 transition hover:bg-stone-200"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    onClick={closeMenu}
+                    className="rounded-full border border-[#d9c7b4] px-4 py-3 text-center text-sm font-semibold text-[#70472c] transition hover:bg-[#f4eadb]"
+                  >
+                    Login
+                  </Link>
+
+                  <Link
+                    to="/signup"
+                    onClick={closeMenu}
+                    className="rounded-full bg-[#8b5e3c] px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#70472c]"
+                  >
+                    Join Us
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

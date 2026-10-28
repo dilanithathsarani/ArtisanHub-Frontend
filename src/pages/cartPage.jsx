@@ -242,17 +242,12 @@ const CartPage = () => {
                   at checkout.
                 </p>
 
-                <button
-                  type="button"
-                  onClick={() =>
-                    alert(
-                      "Checkout functionality will be connected next."
-                    )
-                  }
-                  className="mt-6 w-full rounded-full bg-[#8b5e3c] px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-[#70472c]"
+                <Link
+                  to="/checkout"
+                  className="mt-6 flex w-full items-center justify-center rounded-full bg-[#8b5e3c] px-5 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#70472c]"
                 >
                   Proceed to Checkout
-                </button>
+                </Link>
 
                 <Link
                   to="/"
