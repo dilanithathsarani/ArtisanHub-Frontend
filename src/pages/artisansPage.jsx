@@ -22,13 +22,16 @@ const ArtisansPage = () => {
 
         let response;
         try {
-          response = await axios.get(`${apiUrl}/artisans`);
-        } catch (err) {
-          // Some API deployments do not expose a dedicated artisans route.
-          // In that case, build the community list from product seller data.
-          if (err.response?.status !== 404) throw err;
-
-          const productsResponse = await axios.get(`${apiUrl}/products`);
+          // Primary backend route is /sellers
+          response = await axios.get(`${apiUrl}/sellers`);
+        } catch {
+          try {
+            // Alternative route fallback
+            response = await axios.get(`${apiUrl}/artisans`);
+          } catch {
+            // Some API deployments do not expose a dedicated artisans/sellers route.
+            // In that case, build the community list from product seller data.
+            const productsResponse = await axios.get(`${apiUrl}/products`);
           const productsData = productsResponse.data;
           const products = Array.isArray(productsData)
             ? productsData
@@ -46,6 +49,7 @@ const ArtisansPage = () => {
 
           response = { data: [...artisanMap.values()] };
         }
+      }
 
         const data = response.data;
         const artisanList = Array.isArray(data)

@@ -4,9 +4,10 @@ import { Link } from "react-router-dom";
 
 function ProductCard({ product, onAddToCart }) {
   const image =
+    (typeof product.images?.[0] === "string" ? product.images[0] : null) ||
     product.images?.[0]?.url ||
+    (typeof product.image === "string" ? product.image : null) ||
     product.image?.url ||
-    product.image ||
     "";
 
   const name = product.name || product.title || "Handmade Craft";

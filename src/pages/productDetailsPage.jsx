@@ -239,6 +239,23 @@ function ProductDetailsPage() {
                                     {name}
                                 </h1>
 
+                                {product.seller && (
+                                    <div className="mt-2.5 flex items-center gap-2 text-sm text-stone-600">
+                                        <span className="text-stone-400">Crafted by</span>
+                                        <Link
+                                            to={`/artisans/${encodeURIComponent(
+                                                product.seller.sellerProfile?.slug ||
+                                                product.seller._id ||
+                                                product.seller.id ||
+                                                ""
+                                            )}`}
+                                            className="font-semibold text-[#8b5e3c] underline decoration-[#8b5e3c]/40 underline-offset-4 transition hover:text-[#70472c]"
+                                        >
+                                            {product.seller.sellerProfile?.shopName || product.seller.name || "Local Artisan"}
+                                        </Link>
+                                    </div>
+                                )}
+
                                 {/* Pricing and discount */}
                                 <div className="mt-6 flex flex-wrap items-center gap-3">
                                     <span className="text-2xl font-bold text-[#8b5e3c]">

@@ -12,6 +12,7 @@ import CartPage from './pages/cartPage';
 import ShopPage from './pages/shopPage';
 import CategoriesPage from './pages/categoriesPage';
 import ArtisansPage from './pages/artisansPage';
+import ArtisanDetailsPage from './pages/artisanDetailsPage';
 
 function App() {
   return (
@@ -32,6 +33,8 @@ function App() {
           <Route path='/shop' element={<ShopPage />} />
           <Route path='/categories' element={<CategoriesPage />} />
           <Route path='/artisans' element={<ArtisansPage />} />
+          <Route path='/artisans/:slug' element={<ArtisanDetailsPage />} />
+          <Route path='/artisan/:slug' element={<ArtisanDetailsPage />} />
 
         </Routes>
 
