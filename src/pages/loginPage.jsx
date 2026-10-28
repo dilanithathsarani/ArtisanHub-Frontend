@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
 import artisanImage from "../assets/login.jpg";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from || "/";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -42,7 +44,7 @@ export default function LoginPage() {
       }
 
       toast.success("Welcome back to ArtisanHub!");
-      navigate("/");
+      navigate(from, { replace: true });
     } catch (error) {
       toast.error(
         error.response?.data?.message ||

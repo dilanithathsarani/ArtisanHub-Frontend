@@ -252,11 +252,26 @@ const ArtisanDetailsPage = () => {
     }
   };
 
-  const handleInquirySubmit = (e) => {
+  const handleInquirySubmit = async (e) => {
     e.preventDefault();
-    setInquirySubmitting(true);
-    setTimeout(() => {
-      setInquirySubmitting(false);
+
+    if (!inquiry.name.trim() || !inquiry.email.trim() || !inquiry.message.trim()) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+
+    try {
+      setInquirySubmitting(true);
+
+      // Send via the contact endpoint, prefixing subject with artisan shop name for context
+      const fullSubject = `[Inquiry for ${shopName}] ${inquiry.subject.trim()}`;
+      await axios.post(`${apiUrl}/contact`, {
+        name: inquiry.name.trim(),
+        email: inquiry.email.trim(),
+        subject: fullSubject,
+        message: inquiry.message.trim(),
+      });
+
       setInquirySent(true);
       toast.success("Inquiry sent successfully to the maker!");
       setInquiry({
@@ -265,7 +280,14 @@ const ArtisanDetailsPage = () => {
         subject: "Custom Order Inquiry",
         message: "",
       });
-    }, 600);
+    } catch (err) {
+      toast.error(
+        err.response?.data?.message ||
+          "Unable to send your inquiry. Please try again."
+      );
+    } finally {
+      setInquirySubmitting(false);
+    }
   };
 
   // Categories extracted from this artisan's actual products

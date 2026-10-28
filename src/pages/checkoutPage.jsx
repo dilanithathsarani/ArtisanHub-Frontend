@@ -226,6 +226,7 @@ const CheckoutPage = () => {
           country: "Sri Lanka",
         },
         paymentMethod,
+        ...(orderNotes.trim() && { notes: orderNotes.trim() }),
       };
 
       const response = await axios.post(`${apiUrl}/orders`, orderPayload, {

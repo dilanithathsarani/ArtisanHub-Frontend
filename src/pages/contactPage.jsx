@@ -28,6 +28,7 @@ const initialFormData = {
 function ContactPage() {
   const [formData, setFormData] = useState(initialFormData);
   const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
   const handleChange = (e) => {
@@ -41,20 +42,29 @@ function ContactPage() {
       toast.error("Please fill in all required fields.");
       return;
     }
+    if (!formData.subject.trim()) {
+      toast.error("Please enter a subject for your message.");
+      return;
+    }
 
     try {
       setSubmitting(true);
 
-      const response = await axios.post(`${apiUrl}/contact`, {
+      // Combine inquiry type with subject for context
+      const fullSubject = formData.inquiryType !== "General Inquiry"
+        ? `[${formData.inquiryType}] ${formData.subject.trim()}`
+        : formData.subject.trim();
+
+      await axios.post(`${apiUrl}/contact`, {
         name: formData.name.trim(),
         email: formData.email.trim(),
-        inquiryType: formData.inquiryType,
-        subject: formData.subject.trim(),
+        subject: fullSubject,
         message: formData.message.trim(),
       });
 
-      toast.success(response.data?.message || "Thank you! Your message has been received. We'll be in touch soon.");
+      toast.success("Thank you! Your message has been received. We'll be in touch soon.");
       setFormData(initialFormData);
+      setSubmitted(true);
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
@@ -222,6 +232,22 @@ function ContactPage() {
                 Fill out the form below and an ArtisanHub representative will reach out shortly.
               </p>
 
+              {submitted ? (
+                <div className="mt-8 rounded-2xl bg-emerald-50 border border-emerald-200 p-10 text-center">
+                  <CheckCircle2 size={48} className="mx-auto text-emerald-600" />
+                  <h3 className="mt-4 text-xl font-bold text-emerald-900">Message Sent!</h3>
+                  <p className="mt-2 text-sm text-emerald-700">
+                    Thank you for reaching out to ArtisanHub. Our team will review your message and get back to you shortly.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setSubmitted(false)}
+                    className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#8b5e3c] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-[#70472c]"
+                  >
+                    Send Another Message
+                  </button>
+                </div>
+              ) : (
               <form onSubmit={handleSubmit} className="mt-8 space-y-5">
                 <div className="grid gap-5 sm:grid-cols-2">
                   <div>
@@ -291,7 +317,7 @@ function ContactPage() {
                       htmlFor="subject"
                       className="block text-xs font-semibold uppercase tracking-wider text-stone-700"
                     >
-                      Subject
+                      Subject <span className="text-[#8b5e3c]">*</span>
                     </label>
                     <input
                       type="text"
@@ -300,6 +326,7 @@ function ContactPage() {
                       value={formData.subject}
                       onChange={handleChange}
                       placeholder="Brief topic of your message"
+                      required
                       className="mt-2 w-full rounded-lg border border-stone-200 bg-[#fffdf9] px-4 py-3 text-sm text-stone-800 placeholder-stone-400 transition focus:border-[#8b5e3c] focus:outline-hidden"
                     />
                   </div>
@@ -333,6 +360,7 @@ function ContactPage() {
                   {submitting ? "Sending Message..." : "Send Message"}
                 </button>
               </form>
+              )}
             </div>
           </div>
         </div>
