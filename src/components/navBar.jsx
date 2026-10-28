@@ -14,6 +14,7 @@ import {
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
+  const [wishlistCount, setWishlistCount] = useState(0);
   const [currentUser, setCurrentUser] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem("user") || "null");
@@ -30,12 +31,11 @@ const Navbar = () => {
   };
 
   useEffect(() => {
-    const updateCartCount = () => {
+    const updateCounts = () => {
       try {
         const cart = JSON.parse(
           localStorage.getItem("artisanhub-cart") || "[]"
         );
-
         setCartCount(
           cart.reduce(
             (total, item) => total + (Number(item.quantity) || 0),
@@ -45,15 +45,26 @@ const Navbar = () => {
       } catch {
         setCartCount(0);
       }
+
+      try {
+        const wishlist = JSON.parse(
+          localStorage.getItem("artisanhub-wishlist") || "[]"
+        );
+        setWishlistCount(Array.isArray(wishlist) ? wishlist.length : 0);
+      } catch {
+        setWishlistCount(0);
+      }
     };
 
-    updateCartCount();
-    window.addEventListener("storage", updateCartCount);
-    window.addEventListener("cartUpdated", updateCartCount);
+    updateCounts();
+    window.addEventListener("storage", updateCounts);
+    window.addEventListener("cartUpdated", updateCounts);
+    window.addEventListener("wishlistUpdated", updateCounts);
 
     return () => {
-      window.removeEventListener("storage", updateCartCount);
-      window.removeEventListener("cartUpdated", updateCartCount);
+      window.removeEventListener("storage", updateCounts);
+      window.removeEventListener("cartUpdated", updateCounts);
+      window.removeEventListener("wishlistUpdated", updateCounts);
     };
   }, []);
 
@@ -62,6 +73,7 @@ const Navbar = () => {
     { name: "Shop", path: "/shop" },
     { name: "Categories", path: "/categories" },
     { name: "Our Artisans", path: "/artisans" },
+    { name: "Wishlist", path: "/wishlist" },
     { name: "About", path: "/about" }
   ];
 
@@ -142,6 +154,20 @@ const Navbar = () => {
             className="flex h-10 w-10 items-center justify-center rounded-full text-stone-600 transition hover:bg-[#f4eadb] hover:text-[#8b5e3c]"
           >
             <Search size={20} strokeWidth={1.7} />
+          </Link>
+
+          <Link
+            to="/wishlist"
+            aria-label="Saved creations"
+            className="relative flex h-10 w-10 items-center justify-center rounded-full text-stone-600 transition hover:bg-[#f4eadb] hover:text-rose-500"
+          >
+            <Heart size={20} strokeWidth={1.7} />
+
+            {wishlistCount > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white ring-2 ring-[#fffdf9]">
+                {wishlistCount > 99 ? "99+" : wishlistCount}
+              </span>
+            )}
           </Link>
 
           <Link

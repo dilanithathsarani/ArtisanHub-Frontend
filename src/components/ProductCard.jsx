@@ -1,8 +1,27 @@
 
+import { useState, useEffect } from "react";
 import { formatCurrency } from "../utils/formatCurrency";
 import { Link } from "react-router-dom";
+import { Heart } from "lucide-react";
+import { isInWishlist, toggleWishlistItem } from "../utils/wishlist";
 
 function ProductCard({ product, onAddToCart }) {
+  const [wishlisted, setWishlisted] = useState(() => isInWishlist(product._id));
+
+  useEffect(() => {
+    const checkWishlist = () => {
+      setWishlisted(isInWishlist(product._id));
+    };
+    window.addEventListener("wishlistUpdated", checkWishlist);
+    return () => window.removeEventListener("wishlistUpdated", checkWishlist);
+  }, [product._id]);
+
+  const handleWishlistClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWishlistItem(product);
+  };
+
   const image =
     (typeof product.images?.[0] === "string" ? product.images[0] : null) ||
     product.images?.[0]?.url ||
@@ -29,6 +48,20 @@ function ProductCard({ product, onAddToCart }) {
           </div>
         )}
         </Link>
+
+        {/* Floating Wishlist Button */}
+        <button
+          type="button"
+          onClick={handleWishlistClick}
+          aria-label={wishlisted ? "Remove from saved items" : "Save to wishlist"}
+          className={`absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full shadow-md backdrop-blur-sm transition ${
+            wishlisted
+              ? "bg-white text-rose-500 ring-2 ring-rose-200"
+              : "bg-white/80 text-stone-500 hover:bg-white hover:text-rose-500"
+          }`}
+        >
+          <Heart size={17} fill={wishlisted ? "currentColor" : "none"} strokeWidth={2} />
+        </button>
       </div>
 
       <div className="p-5">

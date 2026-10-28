@@ -16,6 +16,7 @@ import ArtisanDetailsPage from './pages/artisanDetailsPage';
 import CheckoutPage from './pages/checkoutPage';
 import OrderSuccessPage from './pages/orderSuccessPage';
 import MyOrdersPage from './pages/myOrdersPage';
+import WishlistPage from './pages/wishlistPage';
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
           <Route path='/checkout' element={<CheckoutPage />} />
           <Route path='/order-success' element={<OrderSuccessPage />} />
           <Route path='/orders' element={<MyOrdersPage />} />
+          <Route path='/wishlist' element={<WishlistPage />} />
           <Route path='/shop' element={<ShopPage />} />
           <Route path='/categories' element={<CategoriesPage />} />
           <Route path='/artisans' element={<ArtisansPage />} />
