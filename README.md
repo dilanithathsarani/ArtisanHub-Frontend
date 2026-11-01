@@ -59,6 +59,16 @@ A synchronous UI lock and a shared request lock prevent concurrent submissions i
 
 `npm test` includes checkout validation, sanitized payloads, concurrent requests, uncertain outcomes, server field feedback, malformed receipts, multiple-artisan fee totals, and account-change regression cases. No live order was created during verification. Browser and authenticated end-to-end testing remain pending because no browser connection was available in this session.
 
+## Order history and tracking
+
+`/orders` fetches `/orders/mine`, sorts newest first, filters on `orderStatus`, and displays five orders per page. The backend returns the entire history and has no page/limit contract, so pagination is currently client-side. Server pagination remains unchecked in the development plan. Protected `/orders/:id` fetches `/orders/:id` and supports both database IDs and order numbers, as the backend does.
+
+Order displays use saved order-item snapshots, server totals, payment status, seller name, shipping address, creation/update dates, and delivered date when present. The timeline follows `placed -> confirmed -> processing -> shipped -> delivered`. Cancelled, failed, and unknown states never mark a successful delivery timeline; failed payment status is shown separately. The current backend schema does not emit a failed order status or per-stage timestamps, so those are not fabricated.
+
+Cancellation checks a fresh server detail response and allows only `placed` or `confirmed` orders, respecting an explicit `canCancel: false` if supplied. It sends PUT `/orders/:id/cancel` and requires a returned cancelled order before showing success. Both success and failure trigger a refresh so status changes by sellers are reflected. Concurrent duplicate cancellations are blocked. Server authorization remains authoritative. No live cancellation was made during verification.
+
+The order-loading hook aborts superseded/unmounted requests and separates results by token and order identifier. API services also reject responses after account changes. Regression tests cover status mapping, eligibility, fresh checks, failed and duplicate cancellation, filtering/pages, authorization/session changes, malformed responses, and date fallbacks. Browser and authenticated end-to-end verification remain pending because no browser connection was available.
+
 ## Development order
 
-Validate authenticated cart and wishlist workflows against the running backend, then continue with order history/tracking, seller workflows, and admin workflows. Resolve the checkout backend gaps above before release. See `NEXT_DEVELOPMENT_PLAN.md` for acceptance criteria and remaining tasks.
+Validate authenticated cart and wishlist workflows against the running backend, then continue with product reviews, seller workflows, and admin workflows. Resolve the checkout backend gaps above before release. See `NEXT_DEVELOPMENT_PLAN.md` for acceptance criteria and remaining tasks.

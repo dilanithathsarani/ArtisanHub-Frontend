@@ -17,6 +17,7 @@ import ArtisanDetailsPage from './pages/artisanDetailsPage';
 import CheckoutPage from './pages/checkoutPage';
 import OrderSuccessPage from './pages/orderSuccessPage';
 import MyOrdersPage from './pages/myOrdersPage';
+import OrderDetailsPage from './pages/orderDetailsPage';
 import WishlistPage from './pages/wishlistPage';
 
 function App() {
@@ -38,6 +39,7 @@ function App() {
           <Route path='/checkout' element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
           <Route path='/order-success' element={<ProtectedRoute><OrderSuccessPage /></ProtectedRoute>} />
           <Route path='/orders' element={<ProtectedRoute><MyOrdersPage /></ProtectedRoute>} />
+          <Route path='/orders/:id' element={<ProtectedRoute><OrderDetailsPage /></ProtectedRoute>} />
           <Route path='/wishlist' element={<WishlistPage />} />
           <Route path='/shop' element={<ShopPage />} />
           <Route path='/categories' element={<CategoriesPage />} />

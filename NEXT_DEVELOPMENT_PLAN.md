@@ -83,15 +83,17 @@ successful order is stored once, and a failed request leaves the cart intact.
 
 ### 4. My Orders and tracking
 
-- [ ] Fetch paginated buyer order history from the backend.
-- [ ] Add order detail access with items, totals, address summary, and dates.
-- [ ] Implement cancellation only when the backend says the order is
+- [ ] Fetch paginated buyer order history from the backend (the current endpoint returns the entire history; client-side paging is implemented).
+- [x] Add order detail access with items, totals, address summary, and dates.
+- [x] Implement cancellation only when the backend says the order is
       cancellable.
-- [ ] Display the tracking timeline:
+- [x] Display the tracking timeline:
       `Placed -> Confirmed -> Processing -> Shipped -> Delivered`.
-- [ ] Support cancelled and failed states without treating them as successful
+- [x] Support cancelled and failed states without treating them as successful
       delivery states.
-- [ ] Add refresh/retry behavior and accessible status labels.
+- [x] Add refresh/retry behavior and accessible status labels.
+
+Order history now uses `orderStatus` and the actual `placed`/`confirmed` cancellation rules. Added protected `/orders/:id` details, server snapshot items/totals, address and dates, status filters, a five-stage accessible timeline, client-side pages, and refresh/retry controls. Cancellation fetches the latest order first, accepts only a server-confirmed cancelled response, and refreshes after either success or rejection. Request/session guards prevent stale responses being displayed. The backend currently emits no failed order status; failed/unknown statuses are handled defensively without showing a completed delivery. Server-side pagination and authenticated browser/cross-device acceptance tests remain pending.
 
 **Acceptance criteria:** buyers can view current and historical orders, see
 the server status, and cancel eligible orders without stale UI state.
