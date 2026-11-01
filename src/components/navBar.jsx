@@ -1,4 +1,5 @@
 import { useState, useEffect} from "react";
+import { AUTH_EVENT, clearSession, getUser } from "../utils/auth";
 import { Link, NavLink } from "react-router-dom";
 import {
   Search,
@@ -24,11 +25,20 @@ const Navbar = () => {
   });
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    clearSession();
     setCurrentUser(null);
     window.location.href = "/";
   };
+
+  useEffect(() => {
+    const updateUser = () => setCurrentUser(getUser());
+    window.addEventListener(AUTH_EVENT, updateUser);
+    window.addEventListener("storage", updateUser);
+    return () => {
+      window.removeEventListener(AUTH_EVENT, updateUser);
+      window.removeEventListener("storage", updateUser);
+    };
+  }, []);
 
   useEffect(() => {
     const updateCounts = () => {

@@ -1,4 +1,5 @@
 import './App.css'
+import ProtectedRoute from './components/ProtectedRoute';
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import HomePage from './pages/homePage';
 import LoginPage from './pages/loginPage';
@@ -34,9 +35,9 @@ function App() {
           <Route path='/contact' element={<ContactPage />} />
           <Route path="/products/:id" element={<ProductDetailsPage />} />
           <Route path='/cart' element={<CartPage />} />
-          <Route path='/checkout' element={<CheckoutPage />} />
-          <Route path='/order-success' element={<OrderSuccessPage />} />
-          <Route path='/orders' element={<MyOrdersPage />} />
+          <Route path='/checkout' element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
+          <Route path='/order-success' element={<ProtectedRoute><OrderSuccessPage /></ProtectedRoute>} />
+          <Route path='/orders' element={<ProtectedRoute><MyOrdersPage /></ProtectedRoute>} />
           <Route path='/wishlist' element={<WishlistPage />} />
           <Route path='/shop' element={<ShopPage />} />
           <Route path='/categories' element={<CategoriesPage />} />

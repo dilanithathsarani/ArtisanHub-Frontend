@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api, { getApiError } from "../utils/api";
 import toast from "react-hot-toast";
 import {
   Calendar,
@@ -16,7 +16,6 @@ import Navbar from "../components/navBar";
 import Footer from "../components/footer";
 import { formatCurrency } from "../utils/formatCurrency";
 
-const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 const STATUS_TABS = [
   { id: "all", label: "All Orders" },
@@ -50,7 +49,7 @@ const MyOrdersPage = () => {
         setLoading(true);
         setError("");
 
-        const response = await axios.get(`${apiUrl}/orders/mine`, {
+        const response = await api.get(`/orders/mine`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -70,8 +69,7 @@ const MyOrdersPage = () => {
       } catch (err) {
         console.error("Fetch orders error:", err);
         setError(
-          err.response?.data?.message ||
-            "Unable to load your order history. Please try again."
+          getApiError(err, "Unable to load your order history. Please try again.")
         );
       } finally {
         setLoading(false);
@@ -88,8 +86,8 @@ const MyOrdersPage = () => {
 
     try {
       setCancellingOrderId(orderId);
-      await axios.put(
-        `${apiUrl}/orders/${orderId}/cancel`,
+      await api.put(
+        `/orders/${orderId}/cancel`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -106,7 +104,7 @@ const MyOrdersPage = () => {
       );
     } catch (err) {
       toast.error(
-        err.response?.data?.message || "Could not cancel this order."
+        getApiError(err, "Could not cancel this order.")
       );
     } finally {
       setCancellingOrderId(null);

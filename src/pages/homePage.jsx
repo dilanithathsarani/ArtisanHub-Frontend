@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api, { getApiError } from "../utils/api";
 import toast from "react-hot-toast";
 import Navbar from "../components/navBar";
 import Footer from "../components/footer";
@@ -12,10 +12,8 @@ function HomePage() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const apiUrl =
-          import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
-        const response = await axios.get(`${apiUrl}/products`);
+        const response = await api.get(`/products`);
         const result = response.data;
 
         const productList = Array.isArray(result)
@@ -26,7 +24,7 @@ function HomePage() {
       } catch (error) {
         console.error("Error fetching products:", error);
         toast.error(
-          error.response?.data?.message || "Unable to load products."
+          getApiError(error, "Unable to load products.")
         );
       } finally {
         setLoading(false);

@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import api, { getApiError } from "../utils/api";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import Navbar from "../components/navBar";
 import Footer from "../components/footer";
 import ProductCard from "../components/ProductCard";
 import { useSearchParams } from "react-router-dom";
 
-const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 const ShopPage = () => {
   const [products, setProducts] = useState([]);
@@ -30,7 +29,7 @@ const ShopPage = () => {
         setLoading(true);
         setError("");
 
-        const response = await axios.get(`${apiUrl}/products`);
+        const response = await api.get(`/products`);
         const data = response.data;
 
         const productList = Array.isArray(data)
@@ -44,8 +43,7 @@ const ShopPage = () => {
         setProducts(productList);
       } catch (err) {
         setError(
-          err.response?.data?.message ||
-            "Unable to load products. Please try again.",
+          getApiError(err, "Unable to load products. Please try again."),
         );
       } finally {
         setLoading(false);

@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import api, { getApiError } from "../utils/api";
 import toast from "react-hot-toast";
 import artisanImage from "../assets/forgotpw.jpg";
 
@@ -10,8 +10,6 @@ export default function ForgotPasswordPage() {
     const [loading, setLoading] = useState(false);
     const [submitted, setSubmitted] = useState(false);
 
-    const apiUrl =
-        import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -24,7 +22,7 @@ export default function ForgotPasswordPage() {
         try {
             setLoading(true);
 
-            const response = await axios.post(`${apiUrl}/auth/forgotPassword`, {
+            const response = await api.post(`/auth/forgotPassword`, {
                 email: email.trim(),
             });
 
@@ -35,9 +33,7 @@ export default function ForgotPasswordPage() {
             );
         } catch (error) {
             toast.error(
-                error.response?.data?.message ||
-                error.response?.data?.error ||
-                "Unable to process your request. Please try again."
+                getApiError(error, "Unable to process your request. Please try again.")
             );
         } finally {
             setLoading(false);

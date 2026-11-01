@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api, { getApiError } from "../utils/api";
 import toast from "react-hot-toast";
 import {
   ArrowLeft,
@@ -19,7 +19,6 @@ import Footer from "../components/footer";
 import { formatCurrency } from "../utils/formatCurrency";
 
 const CART_KEY = "artisanhub-cart";
-const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const DELIVERY_FEE = 350; // Standard Sri Lanka postal & courier delivery fee in LKR
 
 const SRI_LANKA_DISTRICTS = [
@@ -139,7 +138,7 @@ const CheckoutPage = () => {
 
     // Clear backend cart first to ensure clean state
     try {
-      await axios.delete(`${apiUrl}/cart`, { headers });
+      await api.delete(`/cart`, { headers });
     } catch {
       // ignore
     }
@@ -149,8 +148,8 @@ const CheckoutPage = () => {
       const prodId = item.productId || item._id;
       if (!prodId) continue;
       try {
-        await axios.post(
-          `${apiUrl}/cart/items`,
+        await api.post(
+          `/cart/items`,
           {
             productId: prodId,
             quantity: Number(item.quantity) || 1,
@@ -229,7 +228,7 @@ const CheckoutPage = () => {
         ...(orderNotes.trim() && { notes: orderNotes.trim() }),
       };
 
-      const response = await axios.post(`${apiUrl}/orders`, orderPayload, {
+      const response = await api.post(`/orders`, orderPayload, {
         headers,
       });
 
@@ -255,8 +254,7 @@ const CheckoutPage = () => {
     } catch (err) {
       console.error("Order placement error:", err);
       const msg =
-        err.response?.data?.message ||
-        "Unable to place order. Please verify item availability and try again.";
+        getApiError(err, "Unable to place order. Please verify item availability and try again.");
       toast.error(msg);
     } finally {
       setSubmitting(false);

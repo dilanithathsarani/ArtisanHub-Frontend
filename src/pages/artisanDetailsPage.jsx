@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import axios from "axios";
+import api, { getApiError } from "../utils/api";
 import toast from "react-hot-toast";
 import {
   ArrowLeft,
@@ -24,7 +24,6 @@ import Navbar from "../components/navBar";
 import Footer from "../components/footer";
 import ProductCard from "../components/ProductCard";
 
-const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 const ArtisanDetailsPage = () => {
   const { slug } = useParams();
@@ -54,7 +53,7 @@ const ArtisanDetailsPage = () => {
   const fetchArtisanProducts = async (sellerId, currentArtisan) => {
     try {
       setProductsLoading(true);
-      const res = await axios.get(`${apiUrl}/products?limit=50`);
+      const res = await api.get(`/products?limit=50`);
       const data = res.data;
       const allProducts = Array.isArray(data)
         ? data
@@ -109,12 +108,12 @@ const ArtisanDetailsPage = () => {
 
         // 1. Try to fetch from /sellers/:slug
         try {
-          const res = await axios.get(`${apiUrl}/sellers/${encodeURIComponent(slug)}`);
+          const res = await api.get(`/sellers/${encodeURIComponent(slug)}`);
           sellerData = res.data?.seller || res.data?.data?.seller || res.data;
         } catch (err) {
           // 2. Fallback: try fetching all sellers from /sellers or /artisans and match by slug, _id, or shopId
           try {
-            const listRes = await axios.get(`${apiUrl}/sellers`);
+            const listRes = await api.get(`/sellers`);
             const sellers = Array.isArray(listRes.data)
               ? listRes.data
               : listRes.data?.artisans || listRes.data?.sellers || listRes.data?.data || [];
@@ -133,7 +132,7 @@ const ArtisanDetailsPage = () => {
           // 3. Fallback: check /products to extract seller profile if sellers endpoint is unavailable
           if (!sellerData) {
             try {
-              const productsRes = await axios.get(`${apiUrl}/products`);
+              const productsRes = await api.get(`/products`);
               const allProducts = Array.isArray(productsRes.data)
                 ? productsRes.data
                 : productsRes.data?.products || productsRes.data?.data || [];
@@ -177,8 +176,7 @@ const ArtisanDetailsPage = () => {
       } catch (err) {
         if (!cancelled) {
           setError(
-            err.response?.data?.message ||
-              "Unable to load this artisan profile. They may not have a public shop yet."
+            getApiError(err, "Unable to load this artisan profile. They may not have a public shop yet.")
           );
         }
       } finally {
@@ -265,7 +263,7 @@ const ArtisanDetailsPage = () => {
 
       // Send via the contact endpoint, prefixing subject with artisan shop name for context
       const fullSubject = `[Inquiry for ${shopName}] ${inquiry.subject.trim()}`;
-      await axios.post(`${apiUrl}/contact`, {
+      await api.post(`/contact`, {
         name: inquiry.name.trim(),
         email: inquiry.email.trim(),
         subject: fullSubject,
@@ -282,8 +280,7 @@ const ArtisanDetailsPage = () => {
       });
     } catch (err) {
       toast.error(
-        err.response?.data?.message ||
-          "Unable to send your inquiry. Please try again."
+        getApiError(err, "Unable to send your inquiry. Please try again.")
       );
     } finally {
       setInquirySubmitting(false);

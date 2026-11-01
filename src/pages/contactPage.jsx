@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import api, { getApiError } from "../utils/api";
 import toast from "react-hot-toast";
 import {
   Mail,
@@ -29,7 +29,6 @@ function ContactPage() {
   const [formData, setFormData] = useState(initialFormData);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -55,7 +54,7 @@ function ContactPage() {
         ? `[${formData.inquiryType}] ${formData.subject.trim()}`
         : formData.subject.trim();
 
-      await axios.post(`${apiUrl}/contact`, {
+      await api.post(`/contact`, {
         name: formData.name.trim(),
         email: formData.email.trim(),
         subject: fullSubject,
@@ -67,9 +66,7 @@ function ContactPage() {
       setSubmitted(true);
     } catch (error) {
       toast.error(
-        error.response?.data?.message ||
-          error.response?.data?.error ||
-          "Unable to send your message. Please try again."
+        getApiError(error, "Unable to send your message. Please try again.")
       );
     } finally {
       setSubmitting(false);

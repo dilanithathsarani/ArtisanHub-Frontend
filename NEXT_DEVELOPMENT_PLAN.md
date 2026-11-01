@@ -19,7 +19,7 @@ Complete these cross-cutting pieces before expanding marketplace features:
 
 - [ ] Confirm the backend API contract, authentication token format, resource
       shapes, error responses, pagination, and order status values.
-- [ ] Add a shared Axios client using `VITE_API_URL`, request authentication,
+- [x] Add a shared Axios client using `VITE_API_URL`, request authentication,
       and consistent error handling.
 - [ ] Add reusable auth and API-loading patterns for protected pages.
 - [ ] Define shared product, cart, wishlist, address, order, and user data
@@ -27,6 +27,8 @@ Complete these cross-cutting pieces before expanding marketplace features:
 - [ ] Decide how guest cart/wishlist data is merged or discarded at login.
 - [ ] Add environment configuration documentation and backend connectivity
       checks.
+
+Shared client and route authentication are implemented. README documents inferred API routes and setup. Backend contract verification, shared resource shapes, reusable loading patterns, and guest synchronization remain pending. API/session regression tests use `npm test`.
 
 ## Phase 1: Buyer functionality
 

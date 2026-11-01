@@ -1,13 +1,12 @@
 
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api, { getApiError } from "../utils/api";
 import { ArrowRight, Palette, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/navBar";
 import Footer from "../components/footer";
 import ArtisanCard from "../components/ArtisanCard";
 
-const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 const ArtisansPage = () => {
   const [artisans, setArtisans] = useState([]);
@@ -23,15 +22,15 @@ const ArtisansPage = () => {
         let response;
         try {
           // Primary backend route is /sellers
-          response = await axios.get(`${apiUrl}/sellers`);
+          response = await api.get(`/sellers`);
         } catch {
           try {
             // Alternative route fallback
-            response = await axios.get(`${apiUrl}/artisans`);
+            response = await api.get(`/artisans`);
           } catch {
             // Some API deployments do not expose a dedicated artisans/sellers route.
             // In that case, build the community list from product seller data.
-            const productsResponse = await axios.get(`${apiUrl}/products`);
+            const productsResponse = await api.get(`/products`);
           const productsData = productsResponse.data;
           const products = Array.isArray(productsData)
             ? productsData
@@ -63,8 +62,7 @@ const ArtisansPage = () => {
         setArtisans(artisanList);
       } catch (err) {
         setError(
-          err.response?.data?.message ||
-            "Unable to load artisan profiles. Please try again later."
+          getApiError(err, "Unable to load artisan profiles. Please try again later.")
         );
       } finally {
         setLoading(false);

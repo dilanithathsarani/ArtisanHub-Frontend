@@ -1,12 +1,11 @@
 
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import api, { getApiError } from "../utils/api";
 import { ArrowRight, Shapes } from "lucide-react";
 import Navbar from "../components/navBar";
 import Footer from "../components/footer";
 
-const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 const CategoriesPage = () => {
   const [categories, setCategories] = useState([]);
@@ -16,7 +15,7 @@ const CategoriesPage = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/categories`);
+        const response = await api.get(`/categories`);
 
         const data = response.data;
         const categoryList = Array.isArray(data)
@@ -26,8 +25,7 @@ const CategoriesPage = () => {
         setCategories(categoryList);
       } catch (err) {
         setError(
-          err.response?.data?.message ||
-            "Unable to load categories. Please try again later."
+          getApiError(err, "Unable to load categories. Please try again later.")
         );
       } finally {
         setLoading(false);

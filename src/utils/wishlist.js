@@ -1,8 +1,7 @@
-import axios from "axios";
+import api from "./api";
 import toast from "react-hot-toast";
 
 const WISHLIST_KEY = "artisanhub-wishlist";
-const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 export const getWishlist = () => {
   try {
@@ -38,7 +37,7 @@ export const toggleWishlistItem = async (product) => {
 
     if (headers) {
       try {
-        await axios.delete(`${apiUrl}/wishlist/${prodId}`, { headers });
+        await api.delete(`/wishlist/${prodId}`, { headers });
       } catch {
         // ignore backend sync error
       }
@@ -59,7 +58,7 @@ export const toggleWishlistItem = async (product) => {
 
     if (headers) {
       try {
-        await axios.post(`${apiUrl}/wishlist`, { productId: prodId }, { headers });
+        await api.post(`/wishlist`, { productId: prodId }, { headers });
       } catch {
         // ignore backend sync error
       }

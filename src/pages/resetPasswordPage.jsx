@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
+import api, { getApiError } from "../utils/api";
 import toast from "react-hot-toast";
 import artisanImage from "../assets/reset.jpg";
 
@@ -13,8 +13,6 @@ export default function ResetPasswordPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const apiUrl =
-    import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
@@ -32,8 +30,8 @@ export default function ResetPasswordPage() {
     try {
       setLoading(true);
 
-      const response = await axios.post(
-        `${apiUrl}/auth/reset-password/${token}`,
+      const response = await api.post(
+        `/auth/reset-password/${token}`,
         { password }
       );
 
@@ -44,9 +42,7 @@ export default function ResetPasswordPage() {
       navigate("/login");
     } catch (error) {
       toast.error(
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        "Password reset failed or the link has expired."
+        getApiError(error, "Password reset failed or the link has expired.")
       );
     } finally {
       setLoading(false);

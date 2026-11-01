@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
+import api, { getApiError } from "../utils/api";
 import toast from "react-hot-toast";
+import { saveSession } from "../utils/auth";
 import artisanImage from "../assets/login.jpg";
 
 export default function LoginPage() {
@@ -15,8 +16,6 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const apiUrl =
-    import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -24,18 +23,12 @@ export default function LoginPage() {
     try {
       setLoading(true);
 
-      const response = await axios.post(`${apiUrl}/auth/login`, {
+      const response = await api.post(`/auth/login`, {
         email: email.trim(),
         password,
       });
 
-      const data = response.data;
-      const token =
-        data.token || data.accessToken || data.access_token;
-      const user = data.user || data.data?.user;
-
-      if (token) localStorage.setItem("token", token);
-      if (user) localStorage.setItem("user", JSON.stringify(user));
+      saveSession(response.data);
 
       if (rememberMe) {
         localStorage.setItem("rememberMe", "true");
@@ -47,9 +40,7 @@ export default function LoginPage() {
       navigate(from, { replace: true });
     } catch (error) {
       toast.error(
-        error.response?.data?.message ||
-          error.response?.data?.error ||
-          "Login failed. Please check your credentials."
+        getApiError(error, error.message || "Login failed. Please check your credentials.")
       );
     } finally {
       setLoading(false);

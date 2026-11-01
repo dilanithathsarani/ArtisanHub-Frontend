@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api, { getApiError } from "../utils/api";
 import toast from "react-hot-toast";
 import artisanImage from "../assets/signup.jpg";
 
@@ -17,8 +17,6 @@ export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const apiUrl =
-    import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
   const handleChange = (e) => {
     setFormData({
@@ -43,7 +41,7 @@ export default function SignUpPage() {
     try {
       setLoading(true);
 
-      await axios.post(`${apiUrl}/auth/register`, {
+      await api.post(`/auth/register`, {
         name: formData.name.trim(),
         email: formData.email.trim(),
         password: formData.password,
@@ -53,9 +51,7 @@ export default function SignUpPage() {
       navigate("/login");
     } catch (error) {
       toast.error(
-        error.response?.data?.message ||
-          error.response?.data?.error ||
-          "Registration failed. Please try again."
+        getApiError(error, "Registration failed. Please try again.")
       );
     } finally {
       setLoading(false);

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import axios from "axios";
+import api, { getApiError } from "../utils/api";
 import toast from "react-hot-toast";
 import Navbar from "../components/navBar";
 import Footer from "../components/footer";
@@ -42,12 +42,10 @@ function ProductDetailsPage() {
             setQuantity(1);
 
             try {
-                const apiUrl =
-                    import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
                 const [productResponse, productsResponse] = await Promise.all([
-                    axios.get(`${apiUrl}/products/${id}`),
-                    axios.get(`${apiUrl}/products`).catch(() => null),
+                    api.get(`/products/${id}`),
+                    api.get(`/products`).catch(() => null),
                 ]);
 
                 const responseData = productResponse.data;
@@ -108,8 +106,7 @@ function ProductDetailsPage() {
                 if (!cancelled) {
                     console.error("Error fetching product details:", error);
                     toast.error(
-                        error.response?.data?.message ||
-                        "Unable to load product details."
+                        getApiError(error, "Unable to load product details.")
                     );
                 }
             } finally {
