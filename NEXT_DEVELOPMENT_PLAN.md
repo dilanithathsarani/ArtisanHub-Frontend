@@ -100,10 +100,12 @@ the server status, and cancel eligible orders without stale UI state.
 
 ### 5. Product reviews
 
-- [ ] Add a review endpoint and buyer eligibility check for delivered orders.
-- [ ] Add rating and review form validation.
-- [ ] Display approved reviews and aggregate rating data on product details.
-- [ ] Prevent duplicate reviews and expose moderation/error responses.
+- [x] Add a review endpoint and buyer eligibility check for delivered orders.
+- [x] Add rating and review form validation.
+- [x] Display approved reviews and aggregate rating data on product details.
+- [x] Prevent duplicate reviews and expose moderation/error responses.
+
+Implemented using the existing backend review routes/controller. Product details now show visible reviews and server aggregate ratings, with a buyer form restricted to delivered purchases containing that product. The form validates a whole-number 1–5 rating and a trimmed 5–1,000 character comment; submission rechecks the selected order. Visible reviews exclude already-reviewed purchases from selection, concurrent requests are blocked, and backend duplicate/permission/moderation errors are surfaced without clearing the draft. The backend makes reviews visible by default and provides admin visibility controls rather than a pending-approval workflow. Hidden existing reviews are not exposed by the public endpoint, so duplicate enforcement for those remains server-authoritative. All regression checks pass; live verification remains pending because the local catalog returned no products and no browser connection was available. No live review was submitted.
 
 ## Phase 2: Seller functionality
 

@@ -69,6 +69,14 @@ Cancellation checks a fresh server detail response and allows only `placed` or `
 
 The order-loading hook aborts superseded/unmounted requests and separates results by token and order identifier. API services also reject responses after account changes. Regression tests cover status mapping, eligibility, fresh checks, failed and duplicate cancellation, filtering/pages, authorization/session changes, malformed responses, and date fallbacks. Browser and authenticated end-to-end verification remain pending because no browser connection was available.
 
+## Product reviews
+
+Product details load GET `/reviews/product/:productId`, render visible reviews, and update the header with the server's `averageRating` and `reviewCount`. Public review errors and buyer eligibility errors have separate feedback and retry controls. The backend makes new reviews visible by default; admins may hide them. There is no pending-approval state, and the frontend does not invent one.
+
+Buyer eligibility comes from delivered orders containing the actual product database ID. Visible reviews matching the current buyer/order are excluded from the form. Submission fetches the selected order again, then POSTs `/reviews` with `{ productId, orderId, rating, comment }`. Ratings must be whole numbers from 1 to 5; trimmed comments must contain 5–1,000 characters. The server enforces authorization, delivered-purchase eligibility, and the unique buyer/product/order constraint. Concurrent duplicate submissions are blocked in the frontend. The public endpoint excludes hidden reviews, so an existing hidden duplicate may still appear selectable; the backend rejects it and its response is shown to the buyer. Failed submissions retain the draft. Successful submissions refresh both reviews and aggregate ratings.
+
+Regression tests cover rating/comment boundaries, product/order eligibility, duplicate selection, public filtering and aggregates, sanitized request fields, unauthorized users, stale order status, duplicate/moderation errors, concurrent requests, malformed responses, and session changes. No live review was created. The local catalog returned no products for a live public-review read; authenticated/browser acceptance checks remain pending.
+
 ## Development order
 
-Validate authenticated cart and wishlist workflows against the running backend, then continue with product reviews, seller workflows, and admin workflows. Resolve the checkout backend gaps above before release. See `NEXT_DEVELOPMENT_PLAN.md` for acceptance criteria and remaining tasks.
+Validate authenticated cart and wishlist workflows against the running backend, then continue with seller registration/profile, seller dashboards, and admin workflows. Resolve the checkout backend gaps above before release. See `NEXT_DEVELOPMENT_PLAN.md` for acceptance criteria and remaining tasks.

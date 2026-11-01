@@ -3,7 +3,8 @@ import { toggleWishlistItem } from "../utils/wishlist";
 import { Heart } from "lucide-react";
 import { addCartItem } from "../utils/cart";
 import useCart from "../hooks/useCart";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import ProductReviews from "../components/ProductReviews";
 import { Link, useParams } from "react-router-dom";
 import api, { getApiError } from "../utils/api";
 import toast from "react-hot-toast";
@@ -34,6 +35,11 @@ function ProductDetailsPage() {
     const { pending: cartPending, loading: cartLoading } = useCart();
 
     const [product, setProduct] = useState(null);
+    const handleReviewSummary = useCallback((summary) => {
+        setProduct((current) => current?._id === summary._id ? {
+            ...current, averageRating: summary.averageRating, reviewCount: summary.reviewCount,
+        } : current);
+    }, []);
     const [similarProducts, setSimilarProducts] = useState([]);
     const [activeImage, setActiveImage] = useState(0);
     const [quantity, setQuantity] = useState(1);
@@ -397,6 +403,8 @@ function ProductDetailsPage() {
                                 </div>
                             </div>
                         </div>
+
+                        <ProductReviews key={product._id} productId={product._id} onSummary={handleReviewSummary} />
 
                         {/* Similar products */}
                         {similarProducts.length > 0 && (
