@@ -1,3 +1,4 @@
+import useWishlist from "../hooks/useWishlist";
 import useCart from "../hooks/useCart";
 import { useState, useEffect} from "react";
 import { AUTH_EVENT, clearSession, getUser } from "../utils/auth";
@@ -17,7 +18,8 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { items: cartItems } = useCart();
   const cartCount = cartItems.reduce((total, item) => total + Number(item.quantity), 0);
-  const [wishlistCount, setWishlistCount] = useState(0);
+  const { items: wishlistItems } = useWishlist();
+  const wishlistCount = wishlistItems.length;
   const [currentUser, setCurrentUser] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem("user") || "null");
@@ -42,30 +44,7 @@ const Navbar = () => {
     };
   }, []);
 
-  useEffect(() => {
-    const updateCounts = () => {
 
-      try {
-        const wishlist = JSON.parse(
-          localStorage.getItem("artisanhub-wishlist") || "[]"
-        );
-        setWishlistCount(Array.isArray(wishlist) ? wishlist.length : 0);
-      } catch {
-        setWishlistCount(0);
-      }
-    };
-
-    updateCounts();
-    window.addEventListener("storage", updateCounts);
-    window.addEventListener("cartUpdated", updateCounts);
-    window.addEventListener("wishlistUpdated", updateCounts);
-
-    return () => {
-      window.removeEventListener("storage", updateCounts);
-      window.removeEventListener("cartUpdated", updateCounts);
-      window.removeEventListener("wishlistUpdated", updateCounts);
-    };
-  }, []);
 
   const navLinks = [
     { name: "Home", path: "/" },

@@ -19,7 +19,7 @@ Login accepts `token`, `accessToken`, or `access_token`, directly or inside `dat
 
 ## Backend verification required
 
-The neighboring `../../Backend` directory contains the API source. Cart routes, response fields, buyer authorization, stock validation, and order-side cart clearing have been checked against that source. The other routes below reflect existing frontend calls. The local products endpoint responded HTTP 200; authenticated cart operations still need end-to-end validation with a buyer account.
+The neighboring `../../Backend` directory contains the API source. Cart and wishlist routes, response fields, buyer authorization, stock validation, and order-side cart clearing have been checked against that source. The other routes below reflect existing frontend calls. The local products endpoint responded HTTP 200; authenticated cart operations still need end-to-end validation with a buyer account.
 
 | Area | Existing requests |
 | --- | --- |
@@ -27,7 +27,7 @@ The neighboring `../../Backend` directory contains the API source. Cart routes, 
 | Catalog | GET `/products`, `/products/:id`, `/categories` |
 | Artisans | GET `/sellers`, `/sellers/:slug`; existing fallbacks use `/artisans` and product seller data |
 | Contact | POST `/contact` |
-| Wishlist | POST `/wishlist` with `{ productId }`; DELETE `/wishlist/:productId` |
+| Wishlist | GET `/wishlist`; POST `/wishlist` with `{ productId }`; DELETE `/wishlist/:productId`; DELETE `/wishlist` |
 | Cart | GET `/cart`; POST `/cart/items` with `{ productId, quantity }`; PUT `/cart/items/:productId` with `{ quantity }`; DELETE `/cart/items/:productId`; DELETE `/cart` |
 | Orders | POST `/orders`; GET `/orders/mine`; PUT `/orders/:id/cancel` |
 
@@ -37,10 +37,18 @@ Connectivity check: with the backend running, open Shop and confirm the products
 
 Authenticated buyer carts use the server as their source of truth. Every mutation returns `{ success, cart: { items: [{ product, quantity, subtotal }], totalItems, totalAmount } }`. Product `_id` identifies cart items; PUT sets an absolute quantity and POST adds quantity. Server prices and stock are displayed after successful responses. Failed mutations leave the displayed cart intact. Sellers and admins cannot use buyer carts.
 
-Guests keep `artisanhub-cart` on this device. Login triggers synchronization without clearing the server cart. For a product present in both carts, the larger quantity wins; quantities are not added together. This makes retrying after a lost response safe. Guest entries are removed only after acknowledgement. Failed entries remain available for retry; the cart page also offers an explicit action to discard guest entries and use the saved cart. Stock errors are surfaced rather than silently reducing quantities. The wishlist still uses its existing storage behavior and needs the next integration step.
+Guests keep `artisanhub-cart` on this device. Login triggers synchronization without clearing the server cart. For a product present in both carts, the larger quantity wins; quantities are not added together. This makes retrying after a lost response safe. Guest entries are removed only after acknowledgement. Failed entries remain available for retry; the cart page also offers an explicit action to discard guest entries and use the saved cart. Stock errors are surfaced rather than silently reducing quantities. Wishlist synchronization is implemented as described below.
 
 Checkout now reads the server-backed cart and no longer clears/rebuilds it from localStorage. The remaining checkout validation, payment-provider flow, authoritative order receipt, and duplicate-submit work is tracked separately in `NEXT_DEVELOPMENT_PLAN.md`.
 
+## Wishlist behavior
+
+Buyer wishlists use the backend response `{ success, wishlist: { products: [...] } }`. Shared state drives product-card hearts, the product-details save action, wishlist grid, and navbar count. Save, remove, and clear operations update the UI after server confirmation. Repeated clicks are blocked while a request is pending. Duplicate-add and already-removed responses are reconciled with a fresh server fetch; unrelated errors remain visible. The backend filters inactive or unapproved products from returned lists.
+
+Guests save items under `artisanhub-wishlist`. Login merges the union of unique product IDs without clearing the saved server list. Each guest entry is removed only after acknowledgement. Failed or unavailable entries remain for retry, and the wishlist page offers an explicit action to discard remaining guest entries. Logout/account changes reset shared state so another buyer cannot see the previous list. The wishlist page provides a refresh action for updates made elsewhere.
+
+Verification: `npm test` covers guest operations, server persistence, failed mutations, union merges, duplicate requests, unavailable products, and logout races. Browser verification could not run because no browser connection was available. Authenticated and cross-device acceptance testing still requires a buyer session.
+
 ## Development order
 
-Validate the authenticated cart workflow against the running backend, then continue with wishlist, checkout, orders, seller workflows, and admin workflows. See `NEXT_DEVELOPMENT_PLAN.md` for acceptance criteria and remaining tasks.
+Validate authenticated cart and wishlist workflows against the running backend, then continue with checkout, orders, seller workflows, and admin workflows. See `NEXT_DEVELOPMENT_PLAN.md` for acceptance criteria and remaining tasks.

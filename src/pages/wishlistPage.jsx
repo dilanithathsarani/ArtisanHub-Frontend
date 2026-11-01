@@ -1,48 +1,45 @@
 import { addCartItem } from "../utils/cart";
 import useCart from "../hooks/useCart";
 import { getApiError } from "../utils/api";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import useWishlist from "../hooks/useWishlist";
+import LoadingSpinner from "../components/LoadingSpinner";
+import { getToken } from "../utils/auth";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { ArrowLeft, Heart, ShoppingBag, Trash2 } from "lucide-react";
 import Navbar from "../components/navBar";
 import Footer from "../components/footer";
 import ProductCard from "../components/ProductCard";
-import { getWishlist } from "../utils/wishlist";
+import { clearWishlist, readGuestWishlist, discardGuestWishlist } from "../utils/wishlist";
 
-const WISHLIST_KEY = "artisanhub-wishlist";
+
 
 const WishlistPage = () => {
   const { pending, loading } = useCart();
-  const [wishlist, setWishlist] = useState(() => getWishlist());
-
-  useEffect(() => {
-    const handleUpdate = () => {
-      setWishlist(getWishlist());
-    };
-    window.addEventListener("wishlistUpdated", handleUpdate);
-    return () => window.removeEventListener("wishlistUpdated", handleUpdate);
-  }, []);
+  const { items: wishlist, loading: wishlistLoading, pending: wishlistPending, error, retry } = useWishlist();
+  const [addingAll, setAddingAll] = useState(false);
 
   const handleAddAllToCart = async () => {
     try {
+      setAddingAll(true);
       for (const product of wishlist) await addCartItem(product);
       toast.success("All saved creations added to your cart!");
     } catch (error) { toast.error(getApiError(error, error.message)); }
+    finally { setAddingAll(false); }
   };
 
-  const handleClearWishlist = () => {
+  const handleClearWishlist = async () => {
     if (!window.confirm("Are you sure you want to clear your wishlist?")) return;
-    localStorage.setItem(WISHLIST_KEY, "[]");
-    window.dispatchEvent(new Event("wishlistUpdated"));
-    toast.success("Wishlist cleared.");
+    try { await clearWishlist(); toast.success("Wishlist cleared."); }
+    catch (error) { toast.error(getApiError(error, error.message)); }
   };
 
   return (
     <>
       <Navbar />
 
-      <main className="min-h-screen bg-[#faf7f2] px-4 py-8 sm:px-6 lg:px-8">
+      <main aria-busy={wishlistLoading || wishlistPending || addingAll} className="min-h-screen bg-[#faf7f2] px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           {/* Breadcrumbs */}
           <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-2 text-xs text-stone-500 sm:text-sm">
@@ -72,7 +69,7 @@ const WishlistPage = () => {
                 <button
                   type="button"
                   onClick={handleAddAllToCart}
-                  disabled={pending || loading}
+                  disabled={pending || loading || wishlistLoading || wishlistPending || addingAll || !!error}
                   className="inline-flex items-center gap-2 rounded-full bg-[#8b5e3c] px-5 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-[#70472c]"
                 >
                   <ShoppingBag size={15} />
@@ -82,6 +79,7 @@ const WishlistPage = () => {
                 <button
                   type="button"
                   onClick={handleClearWishlist}
+                  disabled={wishlistLoading || wishlistPending || addingAll || !!error}
                   className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-4 py-2.5 text-xs font-semibold text-stone-600 transition hover:bg-stone-50 hover:text-red-600"
                 >
                   <Trash2 size={14} />
@@ -92,7 +90,14 @@ const WishlistPage = () => {
           </div>
 
           {/* Grid or Empty State */}
-          {wishlist.length === 0 ? (
+          {!getToken() && <p className="mb-4 text-sm text-stone-600">Your saved items are stored on this device. <Link to="/login" state={{ from: "/wishlist" }} className="underline">Sign in to save them to your account.</Link></p>}
+          {error && <div role="alert" className="mb-6 rounded-2xl border border-red-200 bg-white p-6">
+            <p>{error}</p>
+            <button type="button" onClick={() => retry().catch(() => {})} className="mt-3 underline">Retry wishlist synchronization</button>
+            {readGuestWishlist().length > 0 && <button type="button" onClick={() => discardGuestWishlist().catch(() => {})} className="ml-4 underline">Discard guest items and use saved wishlist</button>}
+          </div>}
+          <button type="button" disabled={wishlistLoading || wishlistPending} onClick={() => retry().catch(() => {})} className="mb-4 text-sm underline">Refresh saved items</button>
+          {wishlistLoading ? <LoadingSpinner message="Loading your saved items..." /> : wishlist.length === 0 && !error ? (
             <div className="rounded-3xl border border-[#eadfd3] bg-white px-6 py-20 text-center shadow-sm">
               <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-rose-50 text-rose-500 shadow-sm">
                 <Heart size={38} strokeWidth={1.8} />

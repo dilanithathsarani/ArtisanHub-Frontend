@@ -1,3 +1,6 @@
+import useWishlist from "../hooks/useWishlist";
+import { toggleWishlistItem } from "../utils/wishlist";
+import { Heart } from "lucide-react";
 import { addCartItem } from "../utils/cart";
 import useCart from "../hooks/useCart";
 import { useEffect, useState } from "react";
@@ -26,6 +29,8 @@ const formatPrice = (amount) =>
 
 function ProductDetailsPage() {
     const { id } = useParams();
+    const { items: savedItems, loading: wishlistLoading, pending: wishlistPending, error: wishlistError } = useWishlist();
+    const wishlisted = savedItems.some((item) => item._id === id);
     const { pending: cartPending, loading: cartLoading } = useCart();
 
     const [product, setProduct] = useState(null);
@@ -334,6 +339,23 @@ function ProductDetailsPage() {
                                             : `${stock} available`}
                                     </span>
                                 </p>
+
+                                <button
+                                    type="button"
+                                    aria-pressed={wishlisted}
+                                    disabled={wishlistLoading || wishlistPending || !!wishlistError}
+                                    onClick={async () => {
+                                        try {
+                                            const saved = await toggleWishlistItem(product);
+                                            toast.success(saved ? "Saved to your wishlist" : "Removed from your wishlist");
+                                        } catch (error) { toast.error(getApiError(error, error.message)); }
+                                    }}
+                                    className="mt-6 inline-flex items-center gap-2 rounded-full border border-[#d9c7b4] px-5 py-3 text-sm text-[#70472c] disabled:opacity-50"
+                                >
+                                    <Heart size={18} fill={wishlisted ? "currentColor" : "none"} />
+                                    {wishlisted ? "Remove from wishlist" : "Save to wishlist"}
+                                </button>
+                                {wishlistError && <Link to="/wishlist" className="ml-3 text-sm underline">Review wishlist synchronization</Link>}
 
                                 {/* Quantity and cart */}
                                 <div className="mt-7 flex flex-wrap items-center gap-4">

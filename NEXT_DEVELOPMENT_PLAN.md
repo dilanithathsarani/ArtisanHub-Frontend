@@ -8,8 +8,8 @@ The frontend already includes the main buyer routes:
 - Cart, checkout, order success, my orders, and wishlist
 - Authentication and password-reset screens
 
-Cart and wishlist interactions currently rely on `localStorage`, while checkout
-and my orders contain partial Axios integration. The next implementation stage
+Authenticated carts and wishlists now use the backend; guest selections remain in `localStorage`. Checkout
+and my orders contain partial API integration. The next implementation stage
 should move these flows to a consistent backend-backed experience without
 removing the existing UI behavior.
 
@@ -24,11 +24,11 @@ Complete these cross-cutting pieces before expanding marketplace features:
 - [ ] Add reusable auth and API-loading patterns for protected pages.
 - [ ] Define shared product, cart, wishlist, address, order, and user data
       shapes.
-- [ ] Decide how guest cart/wishlist data is merged or discarded at login.
+- [x] Decide how guest cart/wishlist data is merged or discarded at login.
 - [ ] Add environment configuration documentation and backend connectivity
       checks.
 
-Shared client and route authentication are implemented. README documents inferred API routes and setup. Backend contract verification, shared resource shapes, reusable loading patterns, and guest synchronization remain pending. API/session regression tests use `npm test`.
+Shared client and route authentication are implemented. README documents inferred API routes and setup. Cart/wishlist contracts and guest synchronization are implemented; the remaining marketplace contracts and shared resource shapes still need verification. Cart and wishlist expose reusable loading/error hooks. API/session regression tests use `npm test`.
 
 ## Phase 1: Buyer functionality
 
@@ -51,13 +51,15 @@ session.
 
 ### 2. Wishlist integration
 
-- [ ] Replace the local-only wishlist source with backend fetch, add, remove,
+- [x] Replace the local-only wishlist source with backend fetch, add, remove,
       and clear operations for logged-in users.
-- [ ] Update the heart state consistently across product cards, product
+- [x] Update the heart state consistently across product cards, product
       details, and the wishlist page.
-- [ ] Handle duplicate requests, unavailable products, and failed
+- [x] Handle duplicate requests, unavailable products, and failed
       synchronization explicitly.
-- [ ] Define guest wishlist behavior and merge rules at login.
+- [x] Define guest wishlist behavior and merge rules at login.
+
+Implemented against `../../Backend/routes/wishlistRoutes.js` and its controller. Shared state updates cards, product details, navbar counts, and the wishlist page. Guest items merge by unique product ID and remain in device storage until server acknowledgement. Duplicate adds reconcile against server state; failed mutations preserve saved items. Unavailable guest entries expose retry/discard controls. Regression tests pass; authenticated browser and cross-device acceptance testing remain pending.
 
 **Acceptance criteria:** wishlist changes persist across refreshes and devices
 for the same buyer, and all wishlist surfaces remain synchronized.

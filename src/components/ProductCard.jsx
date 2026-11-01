@@ -3,11 +3,11 @@ import { addCartItem } from "../utils/cart";
 import { getApiError } from "../utils/api";
 import useCart from "../hooks/useCart";
 
-import { useState, useEffect } from "react";
+import useWishlist from "../hooks/useWishlist";
 import { formatCurrency } from "../utils/formatCurrency";
 import { Link } from "react-router-dom";
 import { Heart } from "lucide-react";
-import { isInWishlist, toggleWishlistItem } from "../utils/wishlist";
+import { toggleWishlistItem } from "../utils/wishlist";
 
 function ProductCard({ product, onAddToCart }) {
   const { pending, loading } = useCart();
@@ -15,20 +15,15 @@ function ProductCard({ product, onAddToCart }) {
     try { await (onAddToCart ? onAddToCart(product) : addCartItem(product)); toast.success("Added to cart"); }
     catch (error) { toast.error(getApiError(error, error.message)); }
   };
-  const [wishlisted, setWishlisted] = useState(() => isInWishlist(product._id));
-
-  useEffect(() => {
-    const checkWishlist = () => {
-      setWishlisted(isInWishlist(product._id));
-    };
-    window.addEventListener("wishlistUpdated", checkWishlist);
-    return () => window.removeEventListener("wishlistUpdated", checkWishlist);
-  }, [product._id]);
-
-  const handleWishlistClick = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    toggleWishlistItem(product);
+  const { items: savedItems, loading: wishlistLoading, pending: wishlistPending, error: wishlistError } = useWishlist();
+  const wishlisted = savedItems.some((item) => item._id === product._id);
+  const handleWishlistClick = async (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    try {
+      const saved = await toggleWishlistItem(product);
+      toast.success(saved ? "Saved to your wishlist" : "Removed from your wishlist");
+    } catch (error) { toast.error(getApiError(error, error.message)); }
   };
 
   const image =
@@ -62,6 +57,8 @@ function ProductCard({ product, onAddToCart }) {
         <button
           type="button"
           onClick={handleWishlistClick}
+          disabled={wishlistLoading || wishlistPending || !!wishlistError}
+          aria-pressed={wishlisted}
           aria-label={wishlisted ? "Remove from saved items" : "Save to wishlist"}
           className={`absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full shadow-md backdrop-blur-sm transition ${
             wishlisted
