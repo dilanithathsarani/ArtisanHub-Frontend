@@ -1,3 +1,6 @@
+import useCart from "../hooks/useCart";
+import { loadCart } from "../utils/cart";
+import LoadingSpinner from "../components/LoadingSpinner";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api, { getApiError } from "../utils/api";
@@ -18,7 +21,6 @@ import Navbar from "../components/navBar";
 import Footer from "../components/footer";
 import { formatCurrency } from "../utils/formatCurrency";
 
-const CART_KEY = "artisanhub-cart";
 const DELIVERY_FEE = 350; // Standard Sri Lanka postal & courier delivery fee in LKR
 
 const SRI_LANKA_DISTRICTS = [
@@ -52,14 +54,7 @@ const SRI_LANKA_DISTRICTS = [
 const CheckoutPage = () => {
   const navigate = useNavigate();
 
-  const [cart] = useState(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
-      return Array.isArray(saved) ? saved : [];
-    } catch {
-      return [];
-    }
-  });
+  const { items: cart, loading: cartLoading, pending: cartPending, error: cartError, retry } = useCart();
 
   const [currentUser] = useState(() => {
     try {
@@ -97,11 +92,11 @@ const CheckoutPage = () => {
 
   useEffect(() => {
     // If cart is empty, redirect to cart page
-    if (cart.length === 0) {
+    if (!cartLoading && !cartError && cart.length === 0) {
       toast("Your cart is empty. Add crafts before checking out.");
       navigate("/cart");
     }
-  }, [cart, navigate]);
+  }, [cart, cartLoading, cartError, navigate]);
 
   const totalItems = cart.reduce(
     (total, item) => total + (Number(item.quantity) || 0),
@@ -132,38 +127,14 @@ const CheckoutPage = () => {
     }));
   };
 
-  // Syncs items from localStorage to backend user cart before placing order
-  const syncLocalCartToBackend = async (authToken) => {
-    const headers = { Authorization: `Bearer ${authToken}` };
-
-    // Clear backend cart first to ensure clean state
-    try {
-      await api.delete(`/cart`, { headers });
-    } catch {
-      // ignore
-    }
-
-    // Add each local cart item into backend cart
-    for (const item of cart) {
-      const prodId = item.productId || item._id;
-      if (!prodId) continue;
-      try {
-        await api.post(
-          `/cart/items`,
-          {
-            productId: prodId,
-            quantity: Number(item.quantity) || 1,
-          },
-          { headers }
-        );
-      } catch (err) {
-        console.warn("Could not sync item to server cart:", prodId, err);
-      }
-    }
-  };
-
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
+
+    if (submitting || cartLoading || cartPending || cartError) return;
+    if (cart.some((item) => item.unavailable || (item.stock != null && item.quantity > item.stock))) {
+      toast.error("Update unavailable or out-of-stock items in your cart before checkout.");
+      return;
+    }
 
     // 1. Validation
     if (!shippingAddress.fullName.trim()) {
@@ -208,10 +179,7 @@ const CheckoutPage = () => {
     try {
       setSubmitting(true);
 
-      // Step A: Synchronize local cart items to the server's Cart model
-      await syncLocalCartToBackend(token);
-
-      // Step B: Submit order to backend
+      // Submit the existing server cart; never replace it from browser data.
       const headers = { Authorization: `Bearer ${token}` };
       const orderPayload = {
         shippingAddress: {
@@ -234,9 +202,8 @@ const CheckoutPage = () => {
 
       const data = response.data;
 
-      // Step C: Clear local cart
-      localStorage.setItem(CART_KEY, "[]");
-      window.dispatchEvent(new Event("cartUpdated"));
+      // The backend clears the cart after confirmed order creation.
+      void loadCart().catch(() => {});
 
       toast.success("Your handmade order has been placed successfully!");
 
@@ -260,6 +227,9 @@ const CheckoutPage = () => {
       setSubmitting(false);
     }
   };
+
+  if (cartLoading) return <><Navbar /><LoadingSpinner message="Loading your cart..." /><Footer /></>;
+  if (cartError) return <><Navbar /><main role="alert" className="p-8"><p>{cartError}</p><button onClick={() => retry().catch(() => {})}>Retry</button><Link to="/cart">Back to cart</Link></main><Footer /></>;
 
   return (
     <>
@@ -666,7 +636,7 @@ const CheckoutPage = () => {
                 {/* Submit Action */}
                 <button
                   type="submit"
-                  disabled={submitting}
+                  disabled={submitting || cartLoading || cartPending || !!cartError}
                   className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-[#8b5e3c] py-4 text-sm font-bold text-white shadow-md transition hover:bg-[#70472c] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <Lock size={16} />

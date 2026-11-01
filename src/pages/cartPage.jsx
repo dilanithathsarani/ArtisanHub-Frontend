@@ -1,4 +1,9 @@
-import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import useCart from "../hooks/useCart";
+import { updateCartItem, removeCartItem, readGuestCart, discardGuestCart } from "../utils/cart";
+import { getApiError } from "../utils/api";
+import { getToken } from "../utils/auth";
+import LoadingSpinner from "../components/LoadingSpinner";
 import { Link } from "react-router-dom";
 import {
   ArrowLeft,
@@ -11,59 +16,16 @@ import Navbar from "../components/navBar";
 import Footer from "../components/footer";
 import { formatCurrency } from "../utils/formatCurrency";
 
-const CART_KEY = "artisanhub-cart";
-
 const CartPage = () => {
-  const [cart, setCart] = useState(() => {
-    try {
-      const savedCart = JSON.parse(
-        localStorage.getItem(CART_KEY) || "[]"
-      );
-
-      return Array.isArray(savedCart) ? savedCart : [];
-    } catch {
-      return [];
-    }
-  });
-
-  useEffect(() => {
-    localStorage.setItem(CART_KEY, JSON.stringify(cart));
-    window.dispatchEvent(new Event("cartUpdated"));
-  }, [cart]);
-
-  const updateQuantity = (productId, change) => {
-    setCart((currentCart) =>
-      currentCart.map((item) => {
-        if (item.productId !== productId) {
-          return item;
-        }
-
-        const currentQuantity = Number(item.quantity) || 1;
-        const stock = Number(item.stock);
-
-        const newQuantity = Math.max(
-          1,
-          currentQuantity + change
-        );
-
-        if (change > 0 && stock > 0 && newQuantity > stock) {
-          return item;
-        }
-
-        return {
-          ...item,
-          quantity: newQuantity,
-        };
-      })
-    );
+  const { items: cart, loading, pending, error, retry } = useCart();
+  const updateQuantity = async (productId, change) => {
+    const item = cart.find((entry) => entry.productId === productId);
+    try { await updateCartItem(productId, Number(item.quantity) + change); }
+    catch (err) { toast.error(getApiError(err, err.message)); }
   };
-
-  const removeItem = (productId) => {
-    setCart((currentCart) =>
-      currentCart.filter(
-        (item) => item.productId !== productId
-      )
-    );
+  const removeItem = async (productId) => {
+    try { await removeCartItem(productId); }
+    catch (err) { toast.error(getApiError(err, err.message)); }
   };
 
   const totalItems = cart.reduce(
@@ -83,7 +45,7 @@ const CartPage = () => {
     <>
       <Navbar />
 
-      <main className="min-h-screen bg-[#faf7f2] px-4 py-10 sm:px-6 lg:px-8">
+      <main aria-busy={loading || pending} className="min-h-screen bg-[#faf7f2] px-4 py-10 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl">
           <Link
             to="/"
@@ -107,7 +69,14 @@ const CartPage = () => {
             </p>
           </div>
 
-          {cart.length === 0 ? (
+          {!getToken() && <p className="mb-4 text-sm text-stone-600">Your guest cart is saved on this device. <Link to="/login" state={{ from: "/cart" }} className="underline">Sign in to save it to your account.</Link></p>}
+          {loading ? <LoadingSpinner message="Loading your cart..." /> : error ? (
+            <div role="alert" className="rounded-2xl border border-red-200 bg-white p-6">
+              <p>{error}</p>
+              <button type="button" onClick={() => retry().catch(() => {})} className="mt-3 underline">Retry cart synchronization</button>
+              {readGuestCart().length > 0 && <button type="button" className="ml-4 underline" onClick={() => { discardGuestCart(); retry().catch(() => {}); }}>Discard guest items and use saved cart</button>}
+            </div>
+          ) : cart.length === 0 ? (
             <div className="rounded-3xl border border-[#eadfd3] bg-white px-6 py-16 text-center shadow-sm">
               <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#f4eadb] text-[#8b5e3c]">
                 <ShoppingBag size={34} strokeWidth={1.5} />
@@ -156,6 +125,7 @@ const CartPage = () => {
 
                       <p className="mt-1 text-sm text-stone-500">
                         {formatCurrency(item.price)} each
+                        {item.unavailable ? " · No longer available" : item.stock === 0 ? " · Out of stock" : item.stock != null ? ` · ${item.stock} available` : ""}
                       </p>
 
                       <p className="mt-2 font-bold text-[#8b5e3c]">
@@ -173,7 +143,7 @@ const CartPage = () => {
                           onClick={() =>
                             updateQuantity(item.productId, -1)
                           }
-                          disabled={Number(item.quantity) <= 1}
+                          disabled={pending || item.unavailable || Number(item.quantity) <= 1}
                           aria-label={`Decrease quantity of ${item.name}`}
                           className="p-2 text-[#70472c] transition hover:bg-[#f4eadb] disabled:cursor-not-allowed disabled:opacity-40"
                         >
@@ -189,11 +159,7 @@ const CartPage = () => {
                           onClick={() =>
                             updateQuantity(item.productId, 1)
                           }
-                          disabled={
-                            Number(item.stock) > 0 &&
-                            Number(item.quantity) >=
-                              Number(item.stock)
-                          }
+                          disabled={pending || item.unavailable || (item.stock != null && Number(item.quantity) >= Number(item.stock))}
                           aria-label={`Increase quantity of ${item.name}`}
                           className="p-2 text-[#70472c] transition hover:bg-[#f4eadb] disabled:cursor-not-allowed disabled:opacity-40"
                         >
@@ -203,6 +169,7 @@ const CartPage = () => {
 
                       <button
                         type="button"
+                        disabled={pending}
                         onClick={() => removeItem(item.productId)}
                         className="inline-flex items-center gap-1.5 text-sm text-red-600 transition hover:text-red-800"
                       >
@@ -243,7 +210,8 @@ const CartPage = () => {
                 </p>
 
                 <Link
-                  to="/checkout"
+                  to={pending || cart.some((item) => item.unavailable || (item.stock != null && item.quantity > item.stock)) ? "#" : "/checkout"}
+                  aria-disabled={pending || cart.some((item) => item.unavailable || (item.stock != null && item.quantity > item.stock))}
                   className="mt-6 flex w-full items-center justify-center rounded-full bg-[#8b5e3c] px-5 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#70472c]"
                 >
                   Proceed to Checkout

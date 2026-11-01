@@ -1,3 +1,5 @@
+import { addCartItem } from "../utils/cart";
+import useCart from "../hooks/useCart";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import api, { getApiError } from "../utils/api";
@@ -24,6 +26,7 @@ const formatPrice = (amount) =>
 
 function ProductDetailsPage() {
     const { id } = useParams();
+    const { pending: cartPending, loading: cartLoading } = useCart();
 
     const [product, setProduct] = useState(null);
     const [similarProducts, setSimilarProducts] = useState([]);
@@ -360,32 +363,10 @@ function ProductDetailsPage() {
 
                                     <button
                                         type="button"
-                                        disabled={outOfStock}
-                                        onClick={() =>{
-                                            const cart = JSON.parse(
-                                            localStorage.getItem("artisanhub-cart") || "[]"
-                                        );
-
-                                            const existingItem = cart.find(
-                                                (item) => item.productId === product._id
-                                            );
-
-                                            if (existingItem) {
-                                                existingItem.quantity += quantity;
-                                            } else {
-                                                cart.push({
-                                                    productId: product._id,
-                                                    name: product.name,
-                                                    price: product.price,
-                                                    image: images[0] || "",
-                                                    quantity,
-                                                });
-                                            }
-
-                                            localStorage.setItem("artisanhub-cart", JSON.stringify(cart));
-                                            window.dispatchEvent(new Event("cartUpdated"));
-
-                                            toast("Product added to cart successfully!");
+                                        disabled={outOfStock || cartPending || cartLoading}
+                                        onClick={async () => {
+                                            try { await addCartItem(product, quantity); toast.success("Added to cart"); }
+                                            catch (error) { toast.error(getApiError(error, error.message)); }
                                         }}
                                         className="flex-1 rounded-lg bg-[#8b5e3c] px-6 py-3 font-semibold text-white transition hover:bg-[#70472c] disabled:cursor-not-allowed disabled:opacity-50"
                                     >

@@ -1,3 +1,6 @@
+import { addCartItem } from "../utils/cart";
+import useCart from "../hooks/useCart";
+import { getApiError } from "../utils/api";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -7,10 +10,10 @@ import Footer from "../components/footer";
 import ProductCard from "../components/ProductCard";
 import { getWishlist } from "../utils/wishlist";
 
-const CART_KEY = "artisanhub-cart";
 const WISHLIST_KEY = "artisanhub-wishlist";
 
 const WishlistPage = () => {
+  const { pending, loading } = useCart();
   const [wishlist, setWishlist] = useState(() => getWishlist());
 
   useEffect(() => {
@@ -21,72 +24,11 @@ const WishlistPage = () => {
     return () => window.removeEventListener("wishlistUpdated", handleUpdate);
   }, []);
 
-  const handleAddToCart = (product) => {
+  const handleAddAllToCart = async () => {
     try {
-      const cart = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
-      const prodId = product._id || product.productId;
-      const existing = cart.find((item) => item.productId === prodId);
-
-      const productImage =
-        (typeof product.images?.[0] === "string" ? product.images[0] : null) ||
-        product.images?.[0]?.url ||
-        product.image ||
-        "";
-
-      if (existing) {
-        existing.quantity += 1;
-      } else {
-        cart.push({
-          productId: prodId,
-          name: product.name,
-          price: product.price,
-          image: productImage,
-          quantity: 1,
-        });
-      }
-
-      localStorage.setItem(CART_KEY, JSON.stringify(cart));
-      window.dispatchEvent(new Event("cartUpdated"));
-      toast.success(`${product.name} added to cart!`);
-    } catch {
-      toast.error("Could not add item to cart.");
-    }
-  };
-
-  const handleAddAllToCart = () => {
-    if (wishlist.length === 0) return;
-
-    try {
-      const cart = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
-
-      wishlist.forEach((product) => {
-        const prodId = product._id || product.productId;
-        const existing = cart.find((item) => item.productId === prodId);
-        const productImage =
-          (typeof product.images?.[0] === "string" ? product.images[0] : null) ||
-          product.images?.[0]?.url ||
-          product.image ||
-          "";
-
-        if (existing) {
-          existing.quantity += 1;
-        } else {
-          cart.push({
-            productId: prodId,
-            name: product.name,
-            price: product.price,
-            image: productImage,
-            quantity: 1,
-          });
-        }
-      });
-
-      localStorage.setItem(CART_KEY, JSON.stringify(cart));
-      window.dispatchEvent(new Event("cartUpdated"));
+      for (const product of wishlist) await addCartItem(product);
       toast.success("All saved creations added to your cart!");
-    } catch {
-      toast.error("Could not add items to cart.");
-    }
+    } catch (error) { toast.error(getApiError(error, error.message)); }
   };
 
   const handleClearWishlist = () => {
@@ -130,6 +72,7 @@ const WishlistPage = () => {
                 <button
                   type="button"
                   onClick={handleAddAllToCart}
+                  disabled={pending || loading}
                   className="inline-flex items-center gap-2 rounded-full bg-[#8b5e3c] px-5 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-[#70472c]"
                 >
                   <ShoppingBag size={15} />
@@ -172,7 +115,6 @@ const WishlistPage = () => {
                 <ProductCard
                   key={product._id || product.productId}
                   product={product}
-                  onAddToCart={handleAddToCart}
                 />
               ))}
             </div>

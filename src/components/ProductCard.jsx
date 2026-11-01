@@ -1,3 +1,7 @@
+import toast from "react-hot-toast";
+import { addCartItem } from "../utils/cart";
+import { getApiError } from "../utils/api";
+import useCart from "../hooks/useCart";
 
 import { useState, useEffect } from "react";
 import { formatCurrency } from "../utils/formatCurrency";
@@ -6,6 +10,11 @@ import { Heart } from "lucide-react";
 import { isInWishlist, toggleWishlistItem } from "../utils/wishlist";
 
 function ProductCard({ product, onAddToCart }) {
+  const { pending, loading } = useCart();
+  const handleAdd = async () => {
+    try { await (onAddToCart ? onAddToCart(product) : addCartItem(product)); toast.success("Added to cart"); }
+    catch (error) { toast.error(getApiError(error, error.message)); }
+  };
   const [wishlisted, setWishlisted] = useState(() => isInWishlist(product._id));
 
   useEffect(() => {
@@ -83,15 +92,14 @@ function ProductCard({ product, onAddToCart }) {
             {formatCurrency(product.price)}
           </p>
 
-          {onAddToCart && (
             <button
               type="button"
-              onClick={() => onAddToCart(product)}
+              onClick={handleAdd}
+              disabled={pending || loading || product.stock === 0}
               className="rounded-lg bg-[#8b5e3c] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#70472c]"
             >
-              Add to cart
+              {product.stock === 0 ? "Out of stock" : pending ? "Updating..." : "Add to cart"}
             </button>
-          )}
         </div>
       </div>
     </article>

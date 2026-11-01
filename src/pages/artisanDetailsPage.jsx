@@ -210,36 +210,6 @@ const ArtisanDetailsPage = () => {
     ? profile.craftCategories
     : [];
 
-  const handleAddToCart = (product) => {
-    try {
-      const cart = JSON.parse(localStorage.getItem("artisanhub-cart") || "[]");
-      const existing = cart.find((item) => item.productId === product._id);
-
-      const productImage =
-        (typeof product.images?.[0] === "string" ? product.images[0] : null) ||
-        product.images?.[0]?.url ||
-        product.image ||
-        "";
-
-      if (existing) {
-        existing.quantity += 1;
-      } else {
-        cart.push({
-          productId: product._id,
-          name: product.name,
-          price: product.price,
-          image: productImage,
-          quantity: 1,
-        });
-      }
-
-      localStorage.setItem("artisanhub-cart", JSON.stringify(cart));
-      window.dispatchEvent(new Event("cartUpdated"));
-      toast.success(`${product.name} added to cart!`);
-    } catch {
-      toast.error("Could not add product to cart.");
-    }
-  };
 
   const handleShare = () => {
     if (navigator.clipboard) {
@@ -728,7 +698,6 @@ const ArtisanDetailsPage = () => {
                           <ProductCard
                             key={product._id || product.id}
                             product={product}
-                            onAddToCart={handleAddToCart}
                           />
                         ))}
                       </div>

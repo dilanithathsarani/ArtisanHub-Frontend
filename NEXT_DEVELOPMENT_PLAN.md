@@ -34,14 +34,16 @@ Shared client and route authentication are implemented. README documents inferre
 
 ### 1. Cart integration
 
-- [ ] Add an authenticated `Add to Cart` action to `ProductCard` and
+- [x] Add an authenticated `Add to Cart` action to `ProductCard` and
       `ProductDetailsPage`.
-- [ ] Fetch the current cart from the backend when `CartPage` loads.
-- [ ] Support quantity updates and item removal through backend endpoints.
-- [ ] Show loading, empty, stock-limit, authentication, and API error states.
-- [ ] Keep local cart data only as a deliberate guest fallback, then synchronize
+- [x] Fetch the current cart from the backend when `CartPage` loads.
+- [x] Support quantity updates and item removal through backend endpoints.
+- [x] Show loading, empty, stock-limit, authentication, and API error states.
+- [x] Keep local cart data only as a deliberate guest fallback, then synchronize
       it after login.
-- [ ] Update cart counts and totals after every successful mutation.
+- [x] Update cart counts and totals after every successful mutation.
+
+Implemented against the neighboring backend cart routes/controllers. Guest merge keeps the larger per-product quantity and removes guest entries only after acknowledgement. Checkout consumes the shared server cart without replacing it. Regression tests cover persistence, stock limits, failure preservation, guest retries, and session changes. Local products connectivity returned HTTP 200. Authenticated browser and cross-device acceptance testing remain pending.
 
 **Acceptance criteria:** a buyer can add a product, refresh the page, change
 quantity, remove an item, and see the same cart from another authenticated

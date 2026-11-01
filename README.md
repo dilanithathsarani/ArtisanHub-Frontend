@@ -19,7 +19,7 @@ Login accepts `token`, `accessToken`, or `access_token`, directly or inside `dat
 
 ## Backend verification required
 
-This checkout contains frontend code only. The following routes are inferred from existing calls and have not been verified against a running backend:
+The neighboring `../../Backend` directory contains the API source. Cart routes, response fields, buyer authorization, stock validation, and order-side cart clearing have been checked against that source. The other routes below reflect existing frontend calls. The local products endpoint responded HTTP 200; authenticated cart operations still need end-to-end validation with a buyer account.
 
 | Area | Existing requests |
 | --- | --- |
@@ -28,15 +28,19 @@ This checkout contains frontend code only. The following routes are inferred fro
 | Artisans | GET `/sellers`, `/sellers/:slug`; existing fallbacks use `/artisans` and product seller data |
 | Contact | POST `/contact` |
 | Wishlist | POST `/wishlist` with `{ productId }`; DELETE `/wishlist/:productId` |
-| Cart | DELETE `/cart`; POST `/cart/items` with `{ productId, quantity }` |
+| Cart | GET `/cart`; POST `/cart/items` with `{ productId, quantity }`; PUT `/cart/items/:productId` with `{ quantity }`; DELETE `/cart/items/:productId`; DELETE `/cart` |
 | Orders | POST `/orders`; GET `/orders/mine`; PUT `/orders/:id/cancel` |
 
 Connectivity check: with the backend running, open Shop and confirm the products request succeeds in the browser Network panel. Then sign in and confirm `/orders/mine` uses Bearer authentication. Verify the browser origin is allowed by CORS. A successful production build does not verify backend connectivity.
 
-Before cart integration, confirm GET-cart response shape, item identifiers, quantity update/removal endpoints, stock errors, pagination, and order status/cancellation rules with the backend. Do not invent those endpoints from this table.
+## Cart behavior
 
-Cart and wishlist still use browser storage. Automatic guest merging is deferred until the backend contract is confirmed. The intended merge policy is to preserve guest data until server acknowledgement, combine product quantities within server stock limits, and deduplicate wishlist product IDs. Checkout's existing cart replacement/synchronization and card UI still need the later buyer-flow work described in `NEXT_DEVELOPMENT_PLAN.md`; this foundation does not establish a completed payment integration.
+Authenticated buyer carts use the server as their source of truth. Every mutation returns `{ success, cart: { items: [{ product, quantity, subtotal }], totalItems, totalAmount } }`. Product `_id` identifies cart items; PUT sets an absolute quantity and POST adds quantity. Server prices and stock are displayed after successful responses. Failed mutations leave the displayed cart intact. Sellers and admins cannot use buyer carts.
+
+Guests keep `artisanhub-cart` on this device. Login triggers synchronization without clearing the server cart. For a product present in both carts, the larger quantity wins; quantities are not added together. This makes retrying after a lost response safe. Guest entries are removed only after acknowledgement. Failed entries remain available for retry; the cart page also offers an explicit action to discard guest entries and use the saved cart. Stock errors are surfaced rather than silently reducing quantities. The wishlist still uses its existing storage behavior and needs the next integration step.
+
+Checkout now reads the server-backed cart and no longer clears/rebuilds it from localStorage. The remaining checkout validation, payment-provider flow, authoritative order receipt, and duplicate-submit work is tracked separately in `NEXT_DEVELOPMENT_PLAN.md`.
 
 ## Development order
 
-Continue with backend contract verification and cart integration, then wishlist, checkout, orders, seller workflows, and admin workflows. See `NEXT_DEVELOPMENT_PLAN.md` for acceptance criteria and remaining tasks.
+Validate the authenticated cart workflow against the running backend, then continue with wishlist, checkout, orders, seller workflows, and admin workflows. See `NEXT_DEVELOPMENT_PLAN.md` for acceptance criteria and remaining tasks.

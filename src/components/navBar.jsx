@@ -1,3 +1,4 @@
+import useCart from "../hooks/useCart";
 import { useState, useEffect} from "react";
 import { AUTH_EVENT, clearSession, getUser } from "../utils/auth";
 import { Link, NavLink } from "react-router-dom";
@@ -14,7 +15,8 @@ import {
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
+  const { items: cartItems } = useCart();
+  const cartCount = cartItems.reduce((total, item) => total + Number(item.quantity), 0);
   const [wishlistCount, setWishlistCount] = useState(0);
   const [currentUser, setCurrentUser] = useState(() => {
     try {
@@ -42,19 +44,6 @@ const Navbar = () => {
 
   useEffect(() => {
     const updateCounts = () => {
-      try {
-        const cart = JSON.parse(
-          localStorage.getItem("artisanhub-cart") || "[]"
-        );
-        setCartCount(
-          cart.reduce(
-            (total, item) => total + (Number(item.quantity) || 0),
-            0
-          )
-        );
-      } catch {
-        setCartCount(0);
-      }
 
       try {
         const wishlist = JSON.parse(
