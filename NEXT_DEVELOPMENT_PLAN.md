@@ -66,15 +66,17 @@ for the same buyer, and all wishlist surfaces remain synchronized.
 
 ### 3. Checkout and order placement
 
-- [ ] Load checkout items and authoritative prices from the backend cart.
-- [ ] Validate delivery details with field-level messages and server-side
+- [x] Load checkout items and authoritative prices from the backend cart.
+- [x] Validate delivery details with field-level messages and server-side
       validation feedback.
-- [ ] Keep payment handling secure; never send or persist raw card data unless a
+- [x] Keep payment handling secure; never send or persist raw card data unless a
       backend-approved payment provider flow is in place.
-- [ ] Submit one validated order request and handle duplicate-submit prevention.
-- [ ] Clear the cart only after confirmed order creation.
-- [ ] Display the created order number, totals, delivery details, and next
+- [x] Submit one validated order request and handle duplicate-submit prevention.
+- [x] Clear the cart only after confirmed order creation.
+- [x] Display the created order number, totals, delivery details, and next
       steps on the order-success page.
+
+Frontend implementation complete: delivery fields show accessible validation and server feedback; only cash on delivery is offered; a synchronous submission lock prevents concurrent requests. Uncertain results block automatic retries and direct buyers to My Orders. Receipts use confirmed server orders and sum delivery fees per artisan. No order request was submitted against the live API during development. Backend delivery quotes and idempotency are still required for confirmed pre-submit totals and exactly-once guarantees across reloads/devices; authenticated end-to-end acceptance testing remains pending.
 
 **Acceptance criteria:** invalid checkout data cannot create an order, a
 successful order is stored once, and a failed request leaves the cart intact.

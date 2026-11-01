@@ -39,7 +39,7 @@ Authenticated buyer carts use the server as their source of truth. Every mutatio
 
 Guests keep `artisanhub-cart` on this device. Login triggers synchronization without clearing the server cart. For a product present in both carts, the larger quantity wins; quantities are not added together. This makes retrying after a lost response safe. Guest entries are removed only after acknowledgement. Failed entries remain available for retry; the cart page also offers an explicit action to discard guest entries and use the saved cart. Stock errors are surfaced rather than silently reducing quantities. Wishlist synchronization is implemented as described below.
 
-Checkout now reads the server-backed cart and no longer clears/rebuilds it from localStorage. The remaining checkout validation, payment-provider flow, authoritative order receipt, and duplicate-submit work is tracked separately in `NEXT_DEVELOPMENT_PLAN.md`.
+Checkout now reads the server-backed cart and no longer clears/rebuilds it from localStorage. Checkout validation, cash-on-delivery placement, server-derived receipts, and frontend duplicate-submit prevention are implemented. A payment-provider flow remains future work.
 
 ## Wishlist behavior
 
@@ -49,6 +49,16 @@ Guests save items under `artisanhub-wishlist`. Login merges the union of unique 
 
 Verification: `npm test` covers guest operations, server persistence, failed mutations, union merges, duplicate requests, unavailable products, and logout races. Browser verification could not run because no browser connection was available. Authenticated and cross-device acceptance testing still requires a buyer session.
 
+## Checkout and receipts
+
+Checkout validates required delivery fields, Sri Lankan phone format, five-digit postal codes, and the selected district. It maps the backend's required-field messages and structured field errors into accessible inline messages. It submits only a trimmed shipping address and `paymentMethod: cash-on-delivery`. Card fields and unsupported order notes were removed; raw payment-card data is never collected.
+
+The order controller groups cart items by seller, validates server prices/stock, charges `DELIVERY_FEE` per seller order, and clears the cart in its database transaction. There is no checkout quote endpoint, so the frontend shows the items subtotal and explains delivery fees separately instead of displaying an incorrect single delivery fee. The success page uses confirmed server order numbers, item snapshots, shipping addresses, payment status, per-order totals, and aggregate fees. A missing or malformed receipt shows a link to order history, not a success claim. Receipts are associated with the signed-in buyer in route state; no receipt is written to localStorage.
+
+A synchronous UI lock and a shared request lock prevent concurrent submissions in this frontend instance. Timeout/network errors, server errors, and malformed success responses are treated as uncertain outcomes. Automatic retries are blocked in memory until the buyer checks My Orders and explicitly reloads the cart. The backend does not implement idempotency keys; exactly-once guarantees across page reloads, tabs, or devices require backend support. A delivery quote endpoint is also needed to confirm final shipping costs before submission. These backend gaps remain open. Failed requests never clear the cart in frontend code.
+
+`npm test` includes checkout validation, sanitized payloads, concurrent requests, uncertain outcomes, server field feedback, malformed receipts, multiple-artisan fee totals, and account-change regression cases. No live order was created during verification. Browser and authenticated end-to-end testing remain pending because no browser connection was available in this session.
+
 ## Development order
 
-Validate authenticated cart and wishlist workflows against the running backend, then continue with checkout, orders, seller workflows, and admin workflows. See `NEXT_DEVELOPMENT_PLAN.md` for acceptance criteria and remaining tasks.
+Validate authenticated cart and wishlist workflows against the running backend, then continue with order history/tracking, seller workflows, and admin workflows. Resolve the checkout backend gaps above before release. See `NEXT_DEVELOPMENT_PLAN.md` for acceptance criteria and remaining tasks.
