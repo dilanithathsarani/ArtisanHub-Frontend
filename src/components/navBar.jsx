@@ -53,7 +53,7 @@ const Navbar = () => {
     { name: "Our Artisans", path: "/artisans" },
     { name: "Wishlist", path: "/wishlist" },
     { name: "About", path: "/about" },
-    ...(currentUser?.role === "seller" ? [{ name: "My Shop", path: "/seller" }] : [])
+    ...(currentUser?.role === "seller" ? [{ name: "My Shop", path: "/seller/dashboard" }] : [])
   ];
 
   const navClass = ({ isActive }) =>

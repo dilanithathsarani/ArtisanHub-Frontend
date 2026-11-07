@@ -119,9 +119,12 @@ Seller signup now submits the supported seller role and routes buyers to login w
 
 ### 7. Seller dashboard
 
-- [ ] Add protected seller routes and role checks.
-- [ ] Display product count, order count, revenue, and sales trends.
+- [x] Add protected seller routes and role checks.
+- [x] Display product count, order count, and revenue overview.
+- [ ] Add sales trends.
 - [ ] Add date-range and status filters with clear empty states.
+
+The dashboard overview is available at `/seller/dashboard` through My Shop and the seller profile page. It verifies the current account using `/auth/profile` before requesting `/dashboard/seller`; the backend independently enforces active, approved seller access. The overview displays all-time product moderation counts, total/active/delivered order counts, paid delivered item-subtotal revenue (excluding delivery fees), the latest five orders, and active approved products with stock at or below five. Loading, empty, error/retry, refresh, malformed-response validation, and session-change guards are implemented. Five dashboard regression tests cover access restrictions, authenticated requests, zero/malformed data, session changes, and server failures. All 55 tests and the production build pass; lint has one pre-existing shop-page warning. Authenticated live/browser acceptance checks remain pending. Sales trends, filters, and seller order actions remain separate features.
 
 ### 8. Product and shop management
 

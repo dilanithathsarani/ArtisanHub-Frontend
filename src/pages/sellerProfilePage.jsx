@@ -105,7 +105,7 @@ export default function SellerProfilePage() {
         <h2 className="text-xl font-semibold">Application: {user.sellerApprovalStatus}</h2>
         {user.sellerApprovalStatus === 'pending' && <p>Your application is awaiting administrator approval. Refresh here to check for updates.</p>}
         {user.sellerApprovalStatus === 'rejected' && <p>Your application was rejected. <Link className="underline" to="/contact">Contact the team</Link> to request a review. Online resubmission is not currently available.</p>}
-        {approved && <p>You can now {user.sellerProfile?.shopId ? 'edit' : 'create'} your shop profile.</p>}
+        {approved && <><p>You can now {user.sellerProfile?.shopId ? 'edit' : 'create'} your shop profile.</p><Link to="/seller/dashboard" className="mt-3 inline-block font-semibold underline">Open seller dashboard</Link></>}
       </section>}
       {approved && <form onSubmit={save} noValidate className="space-y-5">
         <fieldset disabled={saving} className="grid gap-5 sm:grid-cols-2">

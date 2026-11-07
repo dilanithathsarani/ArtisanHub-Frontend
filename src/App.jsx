@@ -20,6 +20,7 @@ import MyOrdersPage from './pages/myOrdersPage';
 import OrderDetailsPage from './pages/orderDetailsPage';
 import WishlistPage from './pages/wishlistPage';
 import SellerProfilePage from './pages/sellerProfilePage';
+import SellerDashboardPage from './pages/sellerDashboardPage';
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
           <Route path='/orders/:id' element={<ProtectedRoute><OrderDetailsPage /></ProtectedRoute>} />
           <Route path='/wishlist' element={<WishlistPage />} />
           <Route path='/seller' element={<ProtectedRoute><SellerProfilePage /></ProtectedRoute>} />
+          <Route path='/seller/dashboard' element={<ProtectedRoute><SellerDashboardPage /></ProtectedRoute>} />
           <Route path='/shop' element={<ShopPage />} />
           <Route path='/categories' element={<CategoriesPage />} />
           <Route path='/artisans' element={<ArtisansPage />} />
