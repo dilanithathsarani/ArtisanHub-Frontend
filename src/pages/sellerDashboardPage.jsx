@@ -8,6 +8,7 @@ import { loadSellerDashboard } from '../utils/sellerDashboard';
 import { formatCurrency } from '../utils/formatCurrency';
 import { statusLabel } from '../utils/orders';
 import SalesTrends from '../components/SalesTrends';
+import SellerActivity from '../components/SellerActivity';
 
 export default function SellerDashboardPage() {
   const [state, setState] = useState({ loading: true });
@@ -59,6 +60,7 @@ export default function SellerDashboardPage() {
         ].map(([label, value, detail]) => <article key={label} className="rounded-2xl border border-[#eadfd3] bg-[#fffdf9] p-6"><h2 className="font-medium text-stone-600">{label}</h2><p className="my-3 text-3xl font-semibold text-[#70472c]">{value}</p><p className="text-sm text-stone-500">{detail}</p></article>)}
       </section>
       <SalesTrends />
+      <SellerActivity />
       <section className="mt-10" aria-labelledby="recent-orders"><h2 id="recent-orders" className="mb-4 font-serif text-2xl">Recent orders</h2>
         {dashboard.recentOrders.length === 0 ? <p className="rounded-xl bg-stone-50 p-6">No orders yet. Your latest five orders will appear here.</p> :
           <div className="overflow-x-auto rounded-xl border border-[#eadfd3]"><table className="w-full text-left text-sm"><thead className="bg-[#f4eadb]"><tr>{['Order', 'Date', 'Status', 'Total'].map(label => <th key={label} scope="col" className="p-4">{label}</th>)}</tr></thead><tbody>{dashboard.recentOrders.map(order => <tr key={order._id} className="border-t border-[#eadfd3]"><th scope="row" className="p-4">{order.orderId || order._id}</th><td className="p-4">{order.createdAt && Number.isFinite(Date.parse(order.createdAt)) ? new Date(order.createdAt).toLocaleDateString('en-LK') : 'Date unavailable'}</td><td className="p-4">{statusLabel(order.orderStatus)}</td><td className="p-4">{formatCurrency(order.totalAmount)}</td></tr>)}</tbody></table></div>}
