@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api, { getApiError } from "../utils/api";
 import toast from "react-hot-toast";
@@ -6,6 +6,8 @@ import artisanImage from "../assets/signup.jpg";
 
 export default function SignUpPage() {
   const navigate = useNavigate();
+  const submissionLock = useRef(false);
+  const [role, setRole] = useState("buyer");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -27,6 +29,7 @@ export default function SignUpPage() {
 
   const handleSignUp = async (e) => {
     e.preventDefault();
+    if (submissionLock.current) return;
 
     if (formData.password.length < 8) {
       toast.error("Password must contain at least 8 characters.");
@@ -39,21 +42,24 @@ export default function SignUpPage() {
     }
 
     try {
+      submissionLock.current = true;
       setLoading(true);
 
       await api.post(`/auth/register`, {
         name: formData.name.trim(),
         email: formData.email.trim(),
         password: formData.password,
+        role,
       });
 
-      toast.success("Account created successfully!");
-      navigate("/login");
+      toast.success(role === "seller" ? "Seller application submitted. Log in to check your approval status." : "Account created successfully!");
+      navigate("/login", { state: { from: role === "seller" ? "/seller" : "/" } });
     } catch (error) {
       toast.error(
         getApiError(error, "Registration failed. Please try again.")
       );
     } finally {
+      submissionLock.current = false;
       setLoading(false);
     }
   };
@@ -175,7 +181,7 @@ export default function SignUpPage() {
       </section>
 
       {/* Right side */}
-      <section className="relative flex h-dvh items-center justify-center overflow-hidden px-5 py-4 sm:px-10 lg:px-12 xl:px-16">
+      <section className="relative flex h-dvh items-center justify-center overflow-y-auto px-5 py-12 sm:px-10 lg:px-12 xl:px-16">
         <Link
           to="/"
           className="absolute right-5 top-5 flex items-center gap-2 text-xs text-[#994b1c] hover:text-[#663014] sm:right-8 sm:top-7"
@@ -205,6 +211,14 @@ export default function SignUpPage() {
           </p>
 
           <form onSubmit={handleSignUp} className="mt-5 space-y-3">
+            <div>
+              <label htmlFor="account-role" className="mb-1 block text-sm font-semibold">Account type</label>
+              <select id="account-role" value={role} disabled={loading} onChange={event => setRole(event.target.value)} className="w-full rounded-lg border border-gray-300 p-2 text-sm">
+                <option value="buyer">Buyer</option>
+                <option value="seller">Seller</option>
+              </select>
+              {role === "seller" && <p className="mt-1 text-xs text-gray-600">Administrator approval is required before creating your shop.</p>}
+            </div>
             {/* Full Name */}
             <div>
               <label

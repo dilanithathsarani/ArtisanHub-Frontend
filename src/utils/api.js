@@ -17,8 +17,10 @@ const api = axios.create({ baseURL: apiUrl, timeout: 15000 });
 
 api.interceptors.request.use((config) => {
   const token = getToken();
-  // Public authentication requests must not inherit an older session.
-  if (token && !config.url.startsWith("/auth/")) {
+  // Profile reads and updates are protected even though they live under /auth.
+  const path = config.url.split(/[?#]/)[0];
+  const publicAuthRequest = /^\/auth\/(?:login|register|forgotPassword|forgot-password|reset-password\/[^/]+|resetPassword\/[^/]+)\/?$/.test(path);
+  if (token && !publicAuthRequest) {
     config.headers.set("Authorization", `Bearer ${token}`);
     config.sessionToken = token;
   }

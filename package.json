@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "test": "node --test src/utils/api.test.js src/utils/cart.test.js src/utils/wishlist.test.js src/utils/checkout.test.js src/utils/orders.test.js src/utils/reviews.test.js",
+    "test": "node --test src/utils/api.test.js src/utils/cart.test.js src/utils/wishlist.test.js src/utils/checkout.test.js src/utils/orders.test.js src/utils/reviews.test.js src/utils/seller.test.js",
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",

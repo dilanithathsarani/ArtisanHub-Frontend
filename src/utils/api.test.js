@@ -24,13 +24,18 @@ test("login rejects missing tokens and replaces stale user details", () => {
   assert.equal(getToken(), "");
 });
 
-test("requests use the latest token and auth endpoints omit it", async () => {
+test("requests use the latest token and only public auth endpoints omit it", async () => {
   const adapter = async (config) => ({ data: config.headers.get("Authorization"), config, status: 200 });
   saveSession({ token: "first" });
   assert.equal((await api.get("/orders/mine", { adapter })).data, "Bearer first");
   saveSession({ token: "second" });
   assert.equal((await api.get("/orders/mine", { adapter })).data, "Bearer second");
   assert.equal((await api.post("/auth/login", {}, { adapter })).data, undefined);
+  for (const path of ["/auth/register", "/auth/forgot-password", "/auth/forgotPassword", "/auth/reset-password/reset-token", "/auth/resetPassword/reset-token"]) {
+    assert.equal((await api.post(path, {}, { adapter })).data, undefined);
+  }
+  assert.equal((await api.get("/auth/profile", { adapter })).data, "Bearer second");
+  assert.equal((await api.put("/auth/profile", {}, { adapter })).data, "Bearer second");
 });
 
 test("401 expires its session without clearing a newer login", async () => {

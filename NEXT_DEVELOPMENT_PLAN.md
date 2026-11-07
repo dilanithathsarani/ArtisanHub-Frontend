@@ -111,9 +111,11 @@ Implemented using the existing backend review routes/controller. Product details
 
 ### 6. Seller registration and profile
 
-- [ ] Build seller application form with validation and submission status.
-- [ ] Add seller profile/shop data, location, description, and image handling.
+- [x] Build seller application form with validation and submission status.
+- [x] Add seller profile/shop data, location, description, and image handling.
 - [ ] Show pending, approved, rejected, and resubmission states.
+
+Seller signup now submits the supported seller role and routes buyers to login with the seller account destination. `/seller` reads the authenticated server profile, shows pending/approved/rejected approval status, and lets approved sellers create or update their shop, location, description, contact details, craft categories, and hosted logo/banner URLs. Client validation and server errors preserve drafts; duplicate saves and stale session responses are guarded. My Shop navigation is available to sellers. The existing backend restricts profile writes to approved sellers and has no resubmission endpoint, so rejected applicants are directed to contact support; resubmission remains unfinished. Image upload is not supported by this contract. Authenticated browser acceptance checks remain pending.
 
 ### 7. Seller dashboard
 

@@ -79,4 +79,8 @@ Regression tests cover rating/comment boundaries, product/order eligibility, dup
 
 ## Development order
 
+Seller registration is available through the account type selector on `/signup`. Seller login defaults to `/seller`; the My Shop navigation link opens the same page. This page verifies the account with GET `/auth/profile` rather than relying on the locally stored role. Pending and rejected sellers can check their application status; only approved sellers can create or edit their shop. Existing buyers cannot change their role through profile editing.
+
+Shop creation uses POST `/sellers`; editing uses PUT `/sellers/me`. Both require an active, approved seller. Payload fields are shopName, bio, city, district, country, contactEmail, contactPhone, craftCategories (category IDs from GET `/categories`), logo, bannerImage, website, facebook, and instagram. The create response contains `seller.sellerProfile`; update returns `sellerProfile`. Images use hosted HTTP(S) URLs. There is no image upload or seller application resubmission endpoint. Rejected applicants are directed to contact support. These contracts were checked against the neighboring backend source; authenticated live acceptance testing remains pending.
+
 Validate authenticated cart and wishlist workflows against the running backend, then continue with seller registration/profile, seller dashboards, and admin workflows. Resolve the checkout backend gaps above before release. See `NEXT_DEVELOPMENT_PLAN.md` for acceptance criteria and remaining tasks.

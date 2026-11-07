@@ -52,7 +52,8 @@ const Navbar = () => {
     { name: "Categories", path: "/categories" },
     { name: "Our Artisans", path: "/artisans" },
     { name: "Wishlist", path: "/wishlist" },
-    { name: "About", path: "/about" }
+    { name: "About", path: "/about" },
+    ...(currentUser?.role === "seller" ? [{ name: "My Shop", path: "/seller" }] : [])
   ];
 
   const navClass = ({ isActive }) =>

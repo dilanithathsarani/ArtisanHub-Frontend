@@ -37,7 +37,7 @@ export default function LoginPage() {
       }
 
       toast.success("Welcome back to ArtisanHub!");
-      navigate(from, { replace: true });
+      navigate(location.state?.from || (response.data.user?.role === "seller" ? "/seller" : from), { replace: true });
     } catch (error) {
       toast.error(
         getApiError(error, error.message || "Login failed. Please check your credentials.")
